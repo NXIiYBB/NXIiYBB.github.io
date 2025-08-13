@@ -45,7 +45,21 @@
     footer{padding:24px; text-align:center; color:#6b7280; font-size:12px}
     .hint{font-size:12px; color:#6b7280}
 
-    
+    @media (max-width: 767px) {
+    #menuBtn {
+      display: inline-flex;
+      margin-left: auto;
+    }
+    .toolbar {
+      display: none; /* ซ่อนเริ่มต้น */
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .picker {
+      width: 100%;
+    }
+  }
 
   </style>
 </head>
@@ -56,6 +70,7 @@
         <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--brand),var(--brand-2));border-radius:10px;display:grid;place-items:center;color:#fff;">💌</div>
         <h1>Postcard Maker — ทำการ์ดน่ารักสำหรับ IG Story</h1>
       </div>
+      <button id="menuBtn" class="btn" style="display:none;">☰</button>
       <div class="toolbar">
         <div class="picker" title="ข้อความบนการ์ด">
           <span>ข้อความ</span>
@@ -110,6 +125,7 @@
     let bgIndex = Math.floor(Math.random()*BG_GRADIENTS.length);
     let showPattern = true;
 
+    const menuBtn = document.getElementById('menuBtn');
     const EMOJIS = ['🥰','🌸','🌈','🐻','💖','✨','🍀','🧋','🍓','🧸','💫','🌼','☁️','🐣','🎀'];
 
     const items = []; // {type:'text'|'sticker', text, emoji, x,y, scale, rot, size, alignCenter}
