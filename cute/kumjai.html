@@ -83,7 +83,6 @@
     .btn:active{transform:translateY(1px)}
     .btn.primary{background:var(--brand); color:#fff; box-shadow:0 10px 24px rgba(255,158,199,.35)}
     .btn.secondary{background:#f8fafc}
-    .btn.ghost{background:transparent; border:1px dashed #e5e7eb}
     .btn .ping{
       position:relative; display:inline-block; width:8px; height:8px; border-radius:999px; background:#fff;
     }
@@ -141,7 +140,6 @@
           สุ่มทำนาย
         </button>
         <button id="againBtn" class="btn secondary" style="display: none;">เอาอีกใบ ♻️</button>
-        <button id="shareBtn" class="btn ghost">แชร์คำทำนาย 📤</button>
       </div>
     </div>
 
@@ -312,21 +310,6 @@
       }
     }
 
-    // แชร์ด้วย Web Share API (มือถือส่วนใหญ่รองรับ)
-    async function shareFortune(){
-      const text = `คำทำนายวันนี้ของฉัน: “${fortuneEl.textContent}” 🔮`;
-      if(navigator.share){
-        try{
-          await navigator.share({title:"ทำนายวันนี้", text});
-        }catch(e){ /* ยกเลิกไม่เป็นไร */ }
-      }else{
-        // fallback: คัดลอกข้อความ
-        await navigator.clipboard?.writeText(text);
-        shareBtn.textContent = "คัดลอกแล้ว ✅";
-        setTimeout(()=>shareBtn.textContent="แชร์คำทำนาย 📤", 1200);
-      }
-    }
-
     // ปุ่มต่าง ๆ
     drawBtn.addEventListener('click', ()=>{
       // เปลี่ยนพื้นหลังเฉพาะครั้งแรกเพื่อความว้าว
@@ -342,7 +325,6 @@
       shuffleBackground();
       drawFortune();
     });
-    shareBtn.addEventListener('click', shareFortune);
 
     // เปิดหน้าใหม่ให้โชว์ข้อความแนะนำ
     fortuneEl.classList.add('show');
