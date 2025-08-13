@@ -1,167 +1,266 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Polaroid Frame 📷</title>
-<style>
-body{margin:0;font-family:ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,Noto Sans Thai,Noto Sans,sans-serif;background:#f7f7fb;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px}
-canvas{background:#eee;border-radius:16px;touch-action:none;max-width:100%;height:auto;display:block;margin-bottom:12px}
-.controls{display:flex;flex-direction:column;gap:8px;width:100%;max-width:480px}
-.controls input[type=text]{padding:8px 12px;border-radius:12px;border:1px solid #ccc;font-size:16px;width:100%}
-.controls input[type=file]{font-size:16px}
-button{padding:10px 16px;border:none;border-radius:999px;background:#ff91a4;color:#fff;font-size:16px;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.15)}
-button:active{transform:translateY(1px)}
-button.secondary{background:#6c5ce7}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ทำนายวันนี้ 🔮</title>
+  <style>
+    :root{
+      --ink:#1f2937;
+      --sub:#6b7280;
+      --pill:#ffffffcc;
+      --brand:#ff9ec7;
+      --brand-2:#9dd6ff;
+      --ok:#10b981;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", "Noto Sans", sans-serif;
+      color:var(--ink);
+      background: linear-gradient(135deg, #fff7fb, #f3fbff);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+
+    .app{
+      width:100%;
+      max-width:620px;
+      background:linear-gradient(180deg,#ffffffdd,#ffffffb0);
+      backdrop-filter:saturate(160%) blur(8px);
+      border:1px solid #f1f5f9;
+      border-radius:24px;
+      box-shadow:0 18px 40px rgba(0,0,0,.08);
+      overflow:hidden;
+    }
+
+    header{
+      padding:18px 20px;
+      background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      color:#fff;
+      display:flex; align-items:center; gap:12px;
+    }
+    header .logo{
+      width:40px; height:40px; border-radius:12px;
+      background:rgba(255,255,255,.25);
+      display:grid; place-items:center; font-size:22px;
+    }
+    header h1{font-size:18px; margin:0; line-height:1.2}
+    header p{margin:2px 0 0; font-size:12px; opacity:.9}
+
+    .content{padding:22px}
+    .fortune-card{
+      background:#fff; border:1px solid #eef2f7;
+      border-radius:18px; padding:24px;
+      text-align:center;
+      box-shadow:0 12px 26px rgba(0,0,0,.06);
+      min-height:140px; display:grid; place-items:center;
+    }
+    .fortune-text{
+      font-size:22px; line-height:1.5;
+      opacity:0; transform:translateY(6px) scale(.98);
+      transition:all .25s ease;
+      padding:6px 4px;
+    }
+    .fortune-text.show{opacity:1; transform:translateY(0) scale(1)}
+    .hint{color:var(--sub); font-size:12px; text-align:center; margin-top:8px}
+
+    .toolbar{
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; justify-content:center;
+    }
+    .btn{
+      appearance:none; border:0; cursor:pointer;
+      padding:12px 16px; border-radius:999px;
+      background:#fff; color:var(--ink);
+      box-shadow:0 8px 20px rgba(17,24,39,.08);
+      font-weight:600; font-size:14px;
+      display:inline-flex; align-items:center; gap:8px;
+      transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:var(--brand); color:#fff; box-shadow:0 10px 24px rgba(255,158,199,.35)}
+    .btn.secondary{background:#f8fafc}
+    .btn.ghost{background:transparent; border:1px dashed #e5e7eb}
+    .btn .ping{
+      position:relative; display:inline-block; width:8px; height:8px; border-radius:999px; background:#fff;
+    }
+    .btn .ping::after{
+      content:""; position:absolute; inset:-6px; border:2px solid #fff; border-radius:999px; opacity:.7;
+      animation:ping 1.2s infinite ease-out;
+    }
+    @keyframes ping { from{transform:scale(.5); opacity:.9} to{transform:scale(1.8); opacity:0} }
+
+    footer{padding:14px 18px; text-align:center; color:var(--sub); font-size:12px}
+
+    /* confetti */
+    .pop{
+      position:fixed; pointer-events:none; inset:0; display:block;
+    }
+    .piece{
+      position:absolute; will-change:transform, opacity;
+      font-size:20px; opacity:0; transform:translate(-50%,-50%) scale(.6);
+      animation:float .8s ease-out forwards;
+    }
+    @keyframes float{
+      0%{opacity:0; transform:translate(-50%,-20%) scale(.7)}
+      20%{opacity:1}
+      100%{opacity:0; transform:translate(-50%, -140%) rotate(20deg) scale(1.1)}
+    }
+
+    /* responsiveness */
+    @media (max-width: 480px){
+      header h1{font-size:16px}
+      .fortune-text{font-size:20px}
+      .btn{font-size:13px; padding:11px 14px}
+      .content{padding:18px}
+    }
+  </style>
 </head>
 <body>
+  <div class="app" role="main">
+    <header>
+      <div class="logo">🔮</div>
+      <div>
+        <h1>ทำนายวันนี้</h1>
+        <p>กดปุ่มเพื่อรับพลังบวกหนึ่งคำทำนาย 💖</p>
+      </div>
+    </header>
 
-<input type="file" id="imgInput" accept="image/*">
-<div class="controls">
-<input type="text" id="captionInput" placeholder="พิมพ์ข้อความน่ารัก...">
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<button id="fitBtn" class="secondary">Reset / Fit to Frame</button>
-<button id="downloadBtn">ดาวน์โหลด PNG</button>
-</div>
-</div>
-<canvas id="canvas" width="1080" height="1920"></canvas>
+    <div class="content">
+      <div class="fortune-card" aria-live="polite">
+        <div id="fortune" class="fortune-text">กด “สุ่มทำนาย” เลย!</div>
+      </div>
+      <p class="hint">ทิป: แชะหน้าจอแล้วลงสตอรี่ได้เลย ✨</p>
 
-<script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+      <div class="toolbar">
+        <button id="drawBtn" class="btn primary">
+          <span class="ping"></span>
+          สุ่มทำนาย
+        </button>
+        <button id="againBtn" class="btn secondary" style="display: none;">เอาอีกใบ ♻️</button>
+        <button id="shareBtn" class="btn ghost">แชร์คำทำนาย 📤</button>
+      </div>
+    </div>
 
-let img = null;
-let imgX = canvas.width/2, imgY = canvas.height/2, imgScale = 1;
-let lastX = 0, lastY = 0;
-let dragging = false;
-let pinchDistance = 0;
-let lastScale = 1;
+    <footer>IG: _ntung.gg — ไม่มีการเก็บข้อมูลผู้ใช้</footer>
+  </div>
 
-const marginTop = 40, marginSide = 40, marginBottom = 200;
-const FRAME_COLOR = '#fff';
-const captionInput = document.getElementById('captionInput');
+  <!-- emoji confetti layer -->
+  <div class="pop" aria-hidden="true" id="pop"></div>
 
-document.getElementById('imgInput').addEventListener('change', e=>{
-    const file = e.target.files[0];
-    if(file){
-        const reader = new FileReader();
-        reader.onload = ev=>{
-            img = new Image();
-            img.onload = ()=>{
-                fitImageToFrame();
-                draw();
-            }
-            img.src = ev.target.result;
-        }
-        reader.readAsDataURL(file);
+  <script>
+    // ——— ข้อความทำนายน่ารัก ๆ ———
+    const fortunes = [
+      "วันนี้คุณจะได้ของอร่อยฟรี 🍰",
+      "จะมีคนชมคุณเรื่องรอยยิ้ม 😊",
+      "เรื่องที่รอคอยกำลังเข้าใกล้ขึ้นทุกวัน 🌅",
+      "พักให้พอ แล้วพลังจะกลับมาเอง ☁️💪",
+      "ข้อความดี ๆ จะเด้งมาหาคุณ 📩",
+      "วันนี้เหมาะกับการเริ่มสิ่งใหม่ ๆ ✨",
+      "คนใกล้ตัวกำลังเอ็นดูคุณเป็นพิเศษ 🧸",
+      "งานที่ทำกำลังไปได้สวย ✅",
+      "ความบังเอิญน่ารักจะเกิดขึ้นกับคุณ 🌈",
+      "มีโชคจากการช่วยเหลือผู้อื่น 🎁",
+      "กาแฟแก้วโปรดรอคุณอยู่ ☕️",
+      "เสียงหัวเราะจะทำให้วันทั้งวันดีขึ้น 😂",
+      "คุณเก่งกว่าที่คิดไว้เสมอ ⭐️",
+      "วันนี้จะมีเรื่องเล็ก ๆ ทำให้ยิ้มได้ 💐",
+      "ถ้าออกไปเดินเล่น จะเจอแรงบันดาลใจใหม่ ๆ 🚶‍♀️"
+    ];
+
+    const pastelGradients = [
+      ["#FFE6F3","#E8F3FF"],
+      ["#FFF1D6","#E6FFFA"],
+      ["#F2E8FF","#FFE7EB"],
+      ["#E6FFF7","#FFF0F7"],
+      ["#E9F7FF","#FFF5E6"]
+    ];
+
+    const fortuneEl = document.getElementById('fortune');
+    const drawBtn = document.getElementById('drawBtn');
+    const againBtn = document.getElementById('againBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const pop = document.getElementById('pop');
+
+    // สุ่มพื้นหลังพาสเทลทุกครั้งที่เปิด/กดอีกใบ
+    function shuffleBackground(){
+      const g = pastelGradients[Math.floor(Math.random()*pastelGradients.length)];
+      document.body.style.background = `linear-gradient(135deg, ${g[0]}, ${g[1]})`;
     }
-});
 
-// Fit / Reset function
-function fitImageToFrame(){
-    if(!img) return;
-    imgX = canvas.width/2;
-    imgY = (canvas.height-marginBottom)/2 + marginTop;
-    imgScale = Math.min((canvas.width-2*marginSide)/img.width,(canvas.height-marginTop-marginBottom)/img.height);
-}
-
-// Pointer events สำหรับมือถือและ desktop
-let pointers = {};
-
-canvas.addEventListener('pointerdown', e=>{
-    pointers[e.pointerId] = {x:e.clientX, y:e.clientY};
-    if(Object.keys(pointers).length === 1){
-        dragging = true;
-        lastX = e.clientX;
-        lastY = e.clientY;
-    } else if(Object.keys(pointers).length === 2){
-        const ids = Object.keys(pointers);
-        const p1 = pointers[ids[0]], p2 = pointers[ids[1]];
-        pinchDistance = Math.hypot(p2.x-p1.x, p2.y-p1.y);
-        lastScale = imgScale;
-        dragging = false;
+    // สุ่มคำทำนาย แบบไม่ซ้ำจนกว่าจะครบ
+    let pool = [...fortunes];
+    function drawFortune(){
+      if(pool.length === 0) pool = [...fortunes];
+      const idx = Math.floor(Math.random()*pool.length);
+      const text = pool.splice(idx,1)[0];
+      fortuneEl.classList.remove('show');
+      requestAnimationFrame(()=>{
+        fortuneEl.textContent = text;
+        fortuneEl.classList.add('show');
+      });
+      confetti();
     }
-    canvas.setPointerCapture(e.pointerId);
-});
 
-canvas.addEventListener('pointermove', e=>{
-    if(!img) return;
-    if(Object.keys(pointers).length === 1 && dragging){
-        const dx = e.clientX - lastX;
-        const dy = e.clientY - lastY;
-        imgX += dx * (canvas.width / canvas.getBoundingClientRect().width);
-        imgY += dy * (canvas.height / canvas.getBoundingClientRect().height);
-        lastX = e.clientX;
-        lastY = e.clientY;
-        draw();
-    } else if(Object.keys(pointers).length === 2){
-        const ids = Object.keys(pointers);
-        const p1 = pointers[ids[0]], p2 = pointers[ids[1]];
-        const currentDistance = Math.hypot(p2.x-p1.x, p2.y-p1.y);
-        const scaleFactor = currentDistance/pinchDistance;
-        imgScale = Math.max(0.1, lastScale * scaleFactor);
-        draw();
+    // confetti emoji เบา ๆ
+    const EMO = ["🌸","✨","💖","🍀","🌈","🧸","⭐️","🥰"];
+    function confetti(){
+      // สร้าง 12 ชิ้นจากจุดกึ่งกลางการ์ด
+      const card = document.querySelector('.fortune-card');
+      const rect = card.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+
+      for(let i=0;i<12;i++){
+        const s = document.createElement('div');
+        s.className = 'piece';
+        s.textContent = EMO[Math.floor(Math.random()*EMO.length)];
+        s.style.left = cx + (Math.random()*120-60) + 'px';
+        s.style.top  = cy + (Math.random()*20-10) + 'px';
+        s.style.fontSize = (18 + Math.random()*10) + 'px';
+        s.style.animationDelay = (Math.random()*0.05)+'s';
+        pop.appendChild(s);
+        setTimeout(()=>s.remove(), 900);
+      }
     }
-});
 
-canvas.addEventListener('pointerup', e=>{
-    delete pointers[e.pointerId];
-    if(Object.keys(pointers).length<2) lastScale = imgScale;
-    dragging=false;
-    canvas.releasePointerCapture(e.pointerId);
-});
-
-canvas.addEventListener('pointercancel', e=>{
-    delete pointers[e.pointerId];
-    dragging=false;
-    canvas.releasePointerCapture(e.pointerId);
-});
-
-function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    // frame
-    ctx.fillStyle = FRAME_COLOR;
-    ctx.fillRect(0,0,canvas.width,canvas.height-marginBottom);
-    // draw image
-    if(img){
-        const dw = img.width*imgScale;
-        const dh = img.height*imgScale;
-        const dx = imgX - dw/2;
-        const dy = imgY - dh/2;
-        ctx.drawImage(img, dx, dy, dw, dh);
+    // แชร์ด้วย Web Share API (มือถือส่วนใหญ่รองรับ)
+    async function shareFortune(){
+      const text = `คำทำนายวันนี้ของฉัน: “${fortuneEl.textContent}” 🔮`;
+      if(navigator.share){
+        try{
+          await navigator.share({title:"ทำนายวันนี้", text});
+        }catch(e){ /* ยกเลิกไม่เป็นไร */ }
+      }else{
+        // fallback: คัดลอกข้อความ
+        await navigator.clipboard?.writeText(text);
+        shareBtn.textContent = "คัดลอกแล้ว ✅";
+        setTimeout(()=>shareBtn.textContent="แชร์คำทำนาย 📤", 1200);
+      }
     }
-    // caption
-    ctx.fillStyle = '#ff6f91';
-    ctx.font = '36px Comic Sans MS, system-ui';
-    ctx.textAlign = 'center';
-    ctx.fillText(captionInput.value||'', canvas.width/2, canvas.height - marginBottom/2 - 20);
-    // date
-    const date = new Date();
-    const dateStr = date.toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'});
-    ctx.fillStyle = '#ff91a4';
-    ctx.font = '24px Comic Sans MS, system-ui';
-    ctx.fillText(dateStr, canvas.width/2, canvas.height - marginBottom/2 + 20);
-}
 
-// ดาวน์โหลด PNG
-document.getElementById('downloadBtn').addEventListener('click', ()=>{
-    const link = document.createElement('a');
-    link.download = `polaroid-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-});
+    // ปุ่มต่าง ๆ
+    drawBtn.addEventListener('click', ()=>{
+      // เปลี่ยนพื้นหลังเฉพาะครั้งแรกเพื่อความว้าว
+      if(!fortuneEl.dataset.started){
+        shuffleBackground();
+        fortuneEl.dataset.started = "1";
+        document.getElementById('againBtn').style.display="block";
+        document.getElementById('drawBtn').style.display="none";
+      }
+      drawFortune();
+    });
+    againBtn.addEventListener('click', ()=>{
+      shuffleBackground();
+      drawFortune();
+    });
+    shareBtn.addEventListener('click', shareFortune);
 
-// live update caption
-captionInput.addEventListener('input', draw);
-
-// fit / reset
-document.getElementById('fitBtn').addEventListener('click', ()=>{
-    fitImageToFrame();
-    draw();
-});
-
-draw();
-</script>
+    // เปิดหน้าใหม่ให้โชว์ข้อความแนะนำ
+    fortuneEl.classList.add('show');
+  </script>
 </body>
 </html>
