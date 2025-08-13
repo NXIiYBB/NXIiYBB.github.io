@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>💌 กำลังใจสุ่ม ๆ</title>
+<style>
+  body {
+    font-family: 'Prompt', sans-serif;
+    background: linear-gradient(135deg, #ffe6f0, #e0f7ff);
+    text-align: center;
+    padding: 30px;
+  }
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: inline-block;
+    max-width: 300px;
+  }
+  button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #ff9ecb;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  button:hover { background: #ff7aa8; }
+  #formSection {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    max-width: 300px;
+  }
+</style>
+</head>
+<body>
+
+<h1>💌 ส่งกำลังใจ</h1>
+<div class="card" style="display:inline-block;">
+  <p id="message">กำลังโหลด...</p>
+  <button onclick="newMessage()">ให้กำลังใจอีก</button>
+  <button onclick="showForm()">ส่งข้อความกำลังใจ</button>
+</div>
+
+<div id="formSection" style="display:none;">
+  <h2>ส่งข้อความของคุณ</h2>
+  <textarea id="inputMsg" maxlength="100" placeholder="เขียนข้อความน่ารัก ๆ..."></textarea><br>
+  <button onclick="sendMessage()">ส่ง</button>
+</div>
+
+<script type="module">
+  // Firebase Config
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+  import { getDatabase, ref, push, get, child } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_KEY",
+    authDomain: "YOUR_DOMAIN",
+    databaseURL: "YOUR_DB_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_BUCKET",
+    messagingSenderId: "YOUR_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  async function loadMessages() {
+    const snapshot = await get(ref(db, "messages"));
+    if (snapshot.exists()) {
+      messages = Object.values(snapshot.val());
+      newMessage();
+    } else {
+      document.getElementById("message").innerText = "ยังไม่มีข้อความ";
+    }
+  }
+
+  let messages = [];
+  function newMessage() {
+  if (messages.length > 0) {
+    const random = messages[Math.floor(Math.random() * messages.length)];
+    document.getElementById("message").innerText = random;
+  }
+}
+window.newMessage = newMessage;
+
+  function showForm() {
+    document.getElementById("formSection").style.display = "block";
+  }
+
+  function sendMessage() {
+    const text = document.getElementById("inputMsg").value.trim();
+    if (text) {
+      push(ref(db, "messages"), text);
+      alert("ส่งเรียบร้อย 💖");
+      document.getElementById("inputMsg").value = "";
+    }
+  }
+
+  loadMessages();
+</script>
+
+</body>
+</html>
