@@ -3,152 +3,165 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Polaroid Frame + Caption 📷</title>
+<title>Polaroid Frame 📷</title>
 <style>
-  :root{
-    --bg:#fdf6f0;
-    --primary:#ff91a4;
-    --secondary:#ffd6d6;
-    --text:#1f2937;
-  }
-  *{box-sizing:border-box;}
-  body{margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--bg); display:flex; flex-direction:column; min-height:100vh;}
-  header{position:sticky; top:0; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:10; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;}
-  .logo{font-size:24px;} 
-  .hamburger{display:none; flex-direction:column; cursor:pointer; gap:4px;}
-  .hamburger div{width:28px; height:3px; background:var(--text);}
-  nav{display:flex; gap:12px;}
-  nav button{padding:8px 12px; border-radius:999px; border:none; cursor:pointer; background:var(--primary); color:#fff; font-size:14px;}
-  main{flex:1; display:flex; flex-direction:column; align-items:center; padding:16px;}
-  canvas{max-width:90vw; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,0.12);}
-  .controls{margin-top:16px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center;}
-  .controls input[type=text]{padding:8px 12px; border-radius:12px; border:1px solid #ddd; min-width:180px;}
-  .controls input[type=file]{display:none;}
-  .file-label{cursor:pointer; padding:8px 12px; background:var(--secondary); border-radius:12px;}
-  .btn{padding:8px 16px; border-radius:12px; border:none; cursor:pointer; background:var(--primary); color:#fff;}
-  @media(max-width:767px){
-    nav{display:none; flex-direction:column; position:absolute; top:60px; right:16px; background:#fff; padding:12px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.12);}
-    nav.show{display:flex;}
-    .hamburger{display:flex;}
-  }
+body{margin:0;font-family:ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,Noto Sans Thai,Noto Sans,sans-serif;background:#f7f7fb;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px}
+canvas{background:#eee;border-radius:16px;touch-action:none;max-width:100%;height:auto;display:block;margin-bottom:12px}
+.controls{display:flex;flex-direction:column;gap:8px;width:100%;max-width:480px}
+.controls input[type=text]{padding:8px 12px;border-radius:12px;border:1px solid #ccc;font-size:16px;width:100%}
+.controls input[type=file]{font-size:16px}
+button{padding:10px 16px;border:none;border-radius:999px;background:#ff91a4;color:#fff;font-size:16px;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.15)}
+button:active{transform:translateY(1px)}
+button.secondary{background:#6c5ce7}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">📷 Polaroid Maker</div>
-  <div class="hamburger" id="hamburger"><div></div><div></div><div></div></div>
-  <nav id="nav">
-    <button id="downloadBtn">ดาวน์โหลด PNG</button>
-    <button id="shuffleFrame">เปลี่ยนกรอบ</button>
-  </nav>
-</header>
-<main>
-  <canvas id="canvas" width="1080" height="1350" aria-label="Polaroid Canvas"></canvas>
-  <div class="controls">
-    <label class="file-label">อัปโหลดรูป
-      <input type="file" id="fileInput" accept="image/*">
-    </label>
-    <input type="text" id="captionInput" placeholder="พิมพ์ Caption น่ารัก ๆ...">
-  </div>
-</main>
+
+<input type="file" id="imgInput" accept="image/*">
+<div class="controls">
+<input type="text" id="captionInput" placeholder="พิมพ์ข้อความน่ารัก...">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button id="fitBtn" class="secondary">Reset / Fit to Frame</button>
+<button id="downloadBtn">ดาวน์โหลด PNG</button>
+</div>
+</div>
+<canvas id="canvas" width="1080" height="1920"></canvas>
 
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-let img=null;
+
+let img = null;
+let imgX = canvas.width/2, imgY = canvas.height/2, imgScale = 1;
+let lastX = 0, lastY = 0;
+let dragging = false;
+let pinchDistance = 0;
+let lastScale = 1;
+
+const marginTop = 40, marginSide = 40, marginBottom = 200;
+const FRAME_COLOR = '#fff';
 const captionInput = document.getElementById('captionInput');
 
-const FRAME_COLORS = ['#fff8f5','#fff0f0','#fff8e1','#f0fff8','#f8f0ff'];
-let frameIndex = 0;
-
-// Hamburger menu logic
-const hamburger = document.getElementById('hamburger');
-const nav = document.getElementById('nav');
-hamburger.onclick = ()=> nav.classList.toggle('show');
-
-// Load image
-const fileInput = document.getElementById('fileInput');
-fileInput.addEventListener('change', e=>{
-  const f = e.target.files[0];
-  if(f){
-    const reader = new FileReader();
-    reader.onload = ev=>{
-      const tempImg = new Image();
-      tempImg.onload=()=>{ img=tempImg; drawPolaroid(); }
-      tempImg.src = ev.target.result;
+document.getElementById('imgInput').addEventListener('change', e=>{
+    const file = e.target.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = ev=>{
+            img = new Image();
+            img.onload = ()=>{
+                fitImageToFrame();
+                draw();
+            }
+            img.src = ev.target.result;
+        }
+        reader.readAsDataURL(file);
     }
-    reader.readAsDataURL(f);
-  }
 });
 
-// Draw Polaroid Frame
-function drawPolaroid(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+// Fit / Reset function
+function fitImageToFrame(){
+    if(!img) return;
+    imgX = canvas.width/2;
+    imgY = (canvas.height-marginBottom)/2 + marginTop;
+    imgScale = Math.min((canvas.width-2*marginSide)/img.width,(canvas.height-marginTop-marginBottom)/img.height);
+}
 
-  const radius = 32;
-  const marginBottom = 200;
-  ctx.fillStyle = FRAME_COLORS[frameIndex];
-  ctx.strokeStyle = '#ff91a4';
-  ctx.lineWidth=6;
-  ctx.beginPath();
-  ctx.moveTo(radius,0);
-  ctx.lineTo(canvas.width-radius,0);
-  ctx.quadraticCurveTo(canvas.width,0,canvas.width,radius);
-  ctx.lineTo(canvas.width, canvas.height-marginBottom-radius);
-  ctx.quadraticCurveTo(canvas.width, canvas.height-marginBottom, canvas.width-radius, canvas.height-marginBottom);
-  ctx.lineTo(radius, canvas.height-marginBottom);
-  ctx.quadraticCurveTo(0, canvas.height-marginBottom,0,canvas.height-marginBottom-radius);
-  ctx.lineTo(0,radius);
-  ctx.quadraticCurveTo(0,0,radius,0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
+// Pointer events สำหรับมือถือและ desktop
+let pointers = {};
 
-  ctx.shadowColor='rgba(0,0,0,0.12)';
-  ctx.shadowBlur=24;
-  ctx.fill();
-  ctx.shadowBlur=0;
+canvas.addEventListener('pointerdown', e=>{
+    pointers[e.pointerId] = {x:e.clientX, y:e.clientY};
+    if(Object.keys(pointers).length === 1){
+        dragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+    } else if(Object.keys(pointers).length === 2){
+        const ids = Object.keys(pointers);
+        const p1 = pointers[ids[0]], p2 = pointers[ids[1]];
+        pinchDistance = Math.hypot(p2.x-p1.x, p2.y-p1.y);
+        lastScale = imgScale;
+        dragging = false;
+    }
+    canvas.setPointerCapture(e.pointerId);
+});
 
-  if(img){
-    const marginTop = 40;
-    const marginSide = 40;
-    const imgHeight = canvas.height - marginTop - marginBottom;
-    const imgWidth = canvas.width - marginSide*2;
-    ctx.drawImage(img, marginSide, marginTop, imgWidth, imgHeight);
+canvas.addEventListener('pointermove', e=>{
+    if(!img) return;
+    if(Object.keys(pointers).length === 1 && dragging){
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        imgX += dx * (canvas.width / canvas.getBoundingClientRect().width);
+        imgY += dy * (canvas.height / canvas.getBoundingClientRect().height);
+        lastX = e.clientX;
+        lastY = e.clientY;
+        draw();
+    } else if(Object.keys(pointers).length === 2){
+        const ids = Object.keys(pointers);
+        const p1 = pointers[ids[0]], p2 = pointers[ids[1]];
+        const currentDistance = Math.hypot(p2.x-p1.x, p2.y-p1.y);
+        const scaleFactor = currentDistance/pinchDistance;
+        imgScale = Math.max(0.1, lastScale * scaleFactor);
+        draw();
+    }
+});
 
-    // Caption
+canvas.addEventListener('pointerup', e=>{
+    delete pointers[e.pointerId];
+    if(Object.keys(pointers).length<2) lastScale = imgScale;
+    dragging=false;
+    canvas.releasePointerCapture(e.pointerId);
+});
+
+canvas.addEventListener('pointercancel', e=>{
+    delete pointers[e.pointerId];
+    dragging=false;
+    canvas.releasePointerCapture(e.pointerId);
+});
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // frame
+    ctx.fillStyle = FRAME_COLOR;
+    ctx.fillRect(0,0,canvas.width,canvas.height-marginBottom);
+    // draw image
+    if(img){
+        const dw = img.width*imgScale;
+        const dh = img.height*imgScale;
+        const dx = imgX - dw/2;
+        const dy = imgY - dh/2;
+        ctx.drawImage(img, dx, dy, dw, dh);
+    }
+    // caption
     ctx.fillStyle = '#ff6f91';
     ctx.font = '36px Comic Sans MS, system-ui';
     ctx.textAlign = 'center';
     ctx.fillText(captionInput.value||'', canvas.width/2, canvas.height - marginBottom/2 - 20);
-
-    // Date
+    // date
     const date = new Date();
     const dateStr = date.toLocaleDateString('th-TH', {day:'numeric', month:'short', year:'numeric'});
-    ctx.font = '24px Comic Sans MS, system-ui';
     ctx.fillStyle = '#ff91a4';
+    ctx.font = '24px Comic Sans MS, system-ui';
     ctx.fillText(dateStr, canvas.width/2, canvas.height - marginBottom/2 + 20);
-  }
 }
 
-// Caption input live update
-captionInput.addEventListener('input', drawPolaroid);
+// ดาวน์โหลด PNG
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+    const link = document.createElement('a');
+    link.download = `polaroid-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+});
 
-// Shuffle frame
-document.getElementById('shuffleFrame').onclick=()=>{
-  frameIndex=(frameIndex+1)%FRAME_COLORS.length; drawPolaroid();
-}
+// live update caption
+captionInput.addEventListener('input', draw);
 
-// Download
-document.getElementById('downloadBtn').onclick=()=>{
-  const link=document.createElement('a');
-  link.download=`polaroid-${Date.now()}.png`;
-  link.href=canvas.toDataURL('image/png');
-  link.click();
-}
+// fit / reset
+document.getElementById('fitBtn').addEventListener('click', ()=>{
+    fitImageToFrame();
+    draw();
+});
 
-// Initial
-drawPolaroid();
+draw();
 </script>
 </body>
 </html>
