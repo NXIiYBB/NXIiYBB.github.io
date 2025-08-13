@@ -1,304 +1,297 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Postcard Maker 💌</title>
-  <style>
-    :root{
-      --bg:#f7f7fb;
-      --ink:#1f2937;
-      --brand:#ff96b5;
-      --brand-2:#9dd6ff;
-      --pill:#ffffffcc;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", "Noto Sans", sans-serif;
-      background: linear-gradient(135deg,#fff7fb,#f2fbff);
-      color:var(--ink);
-    }
-    header{position:sticky; top:0; z-index:10; backdrop-filter:saturate(180%) blur(8px);
-      background:linear-gradient(180deg, #ffffffdd, #ffffff88);
-      border-bottom:1px solid #eee;
-    }
-    .wrap{max-width:980px; margin:0 auto; padding:16px;}
-    .title{display:flex; gap:12px; align-items:center;}
-    .title h1{font-size:20px; margin:0}
-    .toolbar{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
-    .btn{appearance:none; border:0; padding:10px 14px; border-radius:999px; background:var(--pill);
-      box-shadow:0 2px 8px rgba(0,0,0,.06); cursor:pointer; font-size:14px}
-    .btn.primary{background:var(--brand); color:#fff;}
-    .btn.secondary{background:#fff;}
-    .btn:active{transform:translateY(1px)}
-    .picker{display:flex; align-items:center; gap:8px; background:#fff; padding:8px 12px; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.06)}
-    .picker input[type="text"]{border:0; outline:none; font-size:14px; padding:8px 10px; background:#f6f7fb; border-radius:10px; min-width:180px}
-    .picker input[type="range"]{width:120px}
-    .stickers{display:flex; gap:6px; flex-wrap:wrap}
-    .sticker-btn{font-size:18px; padding:6px 10px}
-
-    /* Canvas stage */
-    .stage-wrap{display:flex; justify-content:center; align-items:center; padding:16px}
-    .stage{position:relative; aspect-ratio:9/16; width:min(92vw, 420px); background:#fafafa; border-radius:24px; box-shadow:0 10px 30px rgba(0,0,0,.08); overflow:hidden}
-    canvas{width:100%; height:100%; display:block}
-
-    footer{padding:24px; text-align:center; color:#6b7280; font-size:12px}
-    .hint{font-size:12px; color:#6b7280}
-
-    @media (max-width: 767px) {
-    #menuBtn {
-      display: inline-flex;
-      margin-left: auto;
-    }
-    .toolbar {
-      display: none; /* ซ่อนเริ่มต้น */
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .picker {
-      width: 100%;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Postcard Maker 💌</title>
+<style>
+  :root{
+    --bg:#f7f7fb;
+    --ink:#1f2937;
+    --brand:#ff96b5;
+    --brand-2:#9dd6ff;
+    --pill:#ffffffcc;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Thai", "Noto Sans", sans-serif;
+    background: linear-gradient(135deg,#fff7fb,#f2fbff);
+    color:var(--ink);
   }
 
-  </style>
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:10;
+    backdrop-filter:saturate(180%) blur(8px);
+    background:linear-gradient(180deg, #ffffffdd, #ffffff88);
+    border-bottom:1px solid #eee;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;}
+  .title{display:flex; gap:12px; align-items:center;}
+  .title h1{font-size:20px; margin:0}
+
+  /* Hamburger menu */
+  .hamburger{
+    display:none; flex-direction:column; justify-content:space-around;
+    width:28px; height:22px; cursor:pointer;
+  }
+  .hamburger span{
+    display:block; height:3px; border-radius:2px; background:#333;
+    transition: all 0.3s ease;
+  }
+  .nav-links{
+    display:flex; gap:8px; flex-wrap:wrap;
+  }
+  .nav-links.active{display:flex; flex-direction:column; width:100%; margin-top:12px;}
+
+  /* Toolbar */
+  .toolbar{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; width:100%;}
+
+  /* Buttons */
+  .btn {
+    appearance: none; border: none; padding: 10px 16px; border-radius: 20px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .btn.primary {
+    background: linear-gradient(135deg, #ff96b5, #ff61a6);
+    color: #fff;
+    box-shadow: 0 6px 15px rgba(255,150,181,0.4);
+  }
+  .btn.secondary {
+    background: #fff;
+    color: #1f2937;
+    border: 1px solid #eee;
+  }
+  .sticker-btn {
+    font-size: 22px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    transition: transform 0.15s ease;
+  }
+  .btn:hover, .sticker-btn:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+  .btn:active, .sticker-btn:active { transform: translateY(1px) scale(0.98); box-shadow: 0 3px 8px rgba(0,0,0,0.08); }
+
+  .picker{display:flex; align-items:center; gap:8px; background:#fff; padding:8px 12px; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .picker input[type="text"]{border:0; outline:none; font-size:14px; padding:8px 10px; background:#f6f7fb; border-radius:10px; min-width:140px}
+  .picker input[type="range"]{width:120px}
+  .stickers{display:flex; gap:6px; flex-wrap:wrap}
+
+  /* Canvas stage */
+  .stage-wrap{display:flex; justify-content:center; align-items:center; padding:16px; width:100%;}
+  .stage{position:relative; aspect-ratio:9/16; width:min(92vw, 420px); background:#fafafa; border-radius:24px; box-shadow:0 10px 30px rgba(0,0,0,.08); overflow:hidden}
+  canvas{width:100%; height:100%; display:block}
+
+  footer{padding:24px; text-align:center; color:#6b7280; font-size:12px}
+  .hint{font-size:12px; color:#6b7280}
+
+  /* Responsive */
+  @media(max-width:767px){
+    .hamburger{display:flex;}
+    .nav-links{display:none;}
+    .toolbar{flex-direction:column;}
+    .btn{padding:8px 14px; font-size:13px;}
+    .sticker-btn{font-size:20px; padding:6px 10px;}
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <div class="title">
-        <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--brand),var(--brand-2));border-radius:10px;display:grid;place-items:center;color:#fff;">💌</div>
-        <h1>Postcard Maker — ทำการ์ดน่ารักสำหรับ IG Story</h1>
-      </div>
-      <button id="menuBtn" class="btn" style="display:none;">☰</button>
+<header>
+  <div class="wrap">
+    <div class="title">
+      <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--brand),var(--brand-2));border-radius:10px;display:grid;place-items:center;color:#fff;">💌</div>
+      <h1>Postcard Maker</h1>
+    </div>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+    <div class="nav-links" id="navLinks">
       <div class="toolbar">
-        <div class="picker" title="ข้อความบนการ์ด">
+        <div class="picker">
           <span>ข้อความ</span>
           <input id="textInput" type="text" placeholder="พิมพ์ข้อความสั้น ๆ ..." maxlength="80" />
           <label class="hint">ขนาด</label>
           <input id="textSize" type="range" min="24" max="120" value="48" />
           <button class="btn secondary" id="addText">เพิ่มข้อความ</button>
         </div>
-        <div class="picker" title="เพิ่มสติกเกอร์">
+        <div class="picker">
           <span>สติกเกอร์</span>
           <div class="stickers" id="stickers"></div>
           <button class="btn secondary" id="addRandomSticker">สุ่มสติกเกอร์</button>
         </div>
-        <div class="picker" title="พื้นหลัง">
+        <div class="picker">
           <button class="btn" id="shuffleBg">สุ่มพื้นหลัง</button>
           <button class="btn" id="togglePattern">ลายจุด/ปิดลาย</button>
         </div>
-        <div class="picker" title="การ์ด">
+        <div class="picker">
           <button class="btn" id="centerAll">จัดกึ่งกลาง</button>
           <button class="btn" id="clearItems">ล้างไอเท็ม</button>
           <button class="btn primary" id="downloadBtn">ดาวน์โหลด 1080×1920</button>
         </div>
       </div>
     </div>
-  </header>
+  </div>
+</header>
 
-  <main class="stage-wrap">
-    <div class="stage">
-      <canvas id="card" width="1080" height="1920" aria-label="พื้นที่วาดการ์ด"></canvas>
-    </div>
-  </main>
+<main class="stage-wrap">
+  <div class="stage">
+    <canvas id="card" width="1080" height="1920" aria-label="พื้นที่วาดการ์ด"></canvas>
+  </div>
+</main>
 
-  <footer>
-    แตะ/ลาก เพื่อย้ายวัตถุ • ใช้สองนิ้วพินช์เพื่อซูม (มือถือ) • แตะสองครั้งเพื่อเลือก/ยกเลิกเลือก • หมุนด้วยปุ่ม A/D ซูมด้วย W/S
-  </footer>
+<footer>
+  แตะ/ลาก เพื่อย้ายวัตถุ • ใช้สองนิ้วพินช์เพื่อซูม (มือถือ) • แตะสองครั้งเพื่อเลือก/ยกเลิกเลือก • หมุนด้วยปุ่ม A/D ซูมด้วย W/S
+</footer>
 
-  <script>
-    // ====== State ======
-    const canvas = document.getElementById('card');
-    const ctx = canvas.getContext('2d');
-    const DPR = Math.max(1, window.devicePixelRatio || 1);
+<script>
+  // Hamburger toggle
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  hamburger.addEventListener('click',()=>navLinks.classList.toggle('active'));
 
-    // Ensure crisp on high-DPI when downloading (we keep internal at 1080x1920 already)
+  // ===== Canvas Logic =====
+  const canvas = document.getElementById('card');
+  const ctx = canvas.getContext('2d');
 
-    const BG_GRADIENTS = [
-      ['#FFD1DC','#E0F7FF'],
-      ['#FFE6A7','#B8E1FF'],
-      ['#E8D6FF','#FDE2E4'],
-      ['#C9F0FF','#FEE1F3'],
-      ['#E0FFE4','#FFF0F6'],
-    ];
-    let bgIndex = Math.floor(Math.random()*BG_GRADIENTS.length);
-    let showPattern = true;
+  const BG_GRADIENTS = [
+    ['#FFD1DC','#E0F7FF'],
+    ['#FFE6A7','#B8E1FF'],
+    ['#E8D6FF','#FDE2E4'],
+    ['#C9F0FF','#FEE1F3'],
+    ['#E0FFE4','#FFF0F6'],
+  ];
+  let bgIndex = Math.floor(Math.random()*BG_GRADIENTS.length);
+  let showPattern = true;
 
-    const menuBtn = document.getElementById('menuBtn');
-    const EMOJIS = ['🥰','🌸','🌈','🐻','💖','✨','🍀','🧋','🍓','🧸','💫','🌼','☁️','🐣','🎀'];
+  const EMOJIS = ['🥰','🌸','🌈','🐻','💖','✨','🍀','🧋','🍓','🧸','💫','🌼','☁️','🐣','🎀'];
 
-    const items = []; // {type:'text'|'sticker', text, emoji, x,y, scale, rot, size, alignCenter}
-    let activeIndex = -1;
+  const items = [];
+  let activeIndex = -1;
 
-    // ====== Helpers ======
-    function rand(min,max){return Math.random()*(max-min)+min}
-    function centerPos(){ return {x: canvas.width/2, y: canvas.height*0.45}; }
+  function rand(min,max){return Math.random()*(max-min)+min;}
+  function centerPos(){ return {x: canvas.width/2, y: canvas.height*0.45}; }
 
-    function addTextItem(text, size){
-      if(!text) return;
-      items.push({type:'text', text, x:centerPos().x, y:centerPos().y, scale:1, rot:0, size:size||48, alignCenter:true});
-      activeIndex = items.length-1;
-      draw();
-    }
-    function addSticker(emoji){
-      items.push({type:'sticker', emoji, x: rand(240, canvas.width-240), y: rand(360, canvas.height-360), scale: rand(0.8,1.3), rot: rand(-0.2,0.2)});
-      activeIndex = items.length-1;
-      draw();
-    }
-
-    // ====== Drawing ======
-    function drawBackground(){
-      const [c1,c2]=BG_GRADIENTS[bgIndex];
-      const grd=ctx.createLinearGradient(0,0, canvas.width, canvas.height);
-      grd.addColorStop(0,c1); grd.addColorStop(1,c2);
-      ctx.fillStyle=grd; ctx.fillRect(0,0,canvas.width,canvas.height);
-      if(showPattern){
-        const step=120; ctx.globalAlpha=0.15; ctx.fillStyle='#ffffff';
-        for(let y=step/2;y<canvas.height;y+=step){
-          for(let x=step/2;x<canvas.width;x+=step){
-            ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fill();
-          }
-        }
-        ctx.globalAlpha=1;
-      }
-      // white frame
-      const m=48; ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.lineWidth=12; ctx.strokeRect(m,m, canvas.width-2*m, canvas.height-2*m);
-    }
-
-    function drawItems(){
-      items.forEach((it, i)=>{
-        ctx.save();
-        ctx.translate(it.x, it.y);
-        ctx.rotate(it.rot||0);
-        ctx.scale(it.scale||1, it.scale||1);
-        if(it.type==='text'){
-          ctx.font = `600 ${it.size||48}px system-ui, \"Noto Color Emoji\", emoji`;
-          ctx.fillStyle = '#1f2937';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          wrapText(it.text, 800, it.size*1.2);
-        } else {
-          ctx.font = `${160}px \"Noto Color Emoji\", system-ui`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(it.emoji, 0, 0);
-        }
-        ctx.restore();
-        // active highlight
-        if(i===activeIndex){
-          ctx.save();
-          ctx.strokeStyle = 'rgba(31,41,55,.6)';
-          ctx.setLineDash([12,8]);
-          ctx.lineWidth=4; ctx.strokeRect(it.x-140, it.y-140, 280, 280);
-          ctx.restore();
-        }
-      })
-    }
-
-    function wrapText(text, maxWidth, lineHeight){
-      const words = text.split(' ');
-      let line = '', y=0;
-      const lines=[];
-      for(let w of words){
-        const test = line? line+" "+w : w;
-        if(ctx.measureText(test).width > maxWidth){
-          lines.push(line); line = w;
-        }else line = test;
-      }
-      if(line) lines.push(line);
-      const totalH = (lines.length-1)*lineHeight;
-      let startY = -totalH/2;
-      for(const ln of lines){ ctx.fillText(ln, 0, startY); startY+=lineHeight; }
-    }
-
-    function draw(){
-      drawBackground();
-      drawItems();
-    }
-
-    // ====== Interaction (pointer) ======
-    let dragging=false; let last={x:0,y:0};
-    canvas.addEventListener('pointerdown', e=>{
-      const p = getCanvasPoint(e);
-      activeIndex = hitTest(p.x,p.y);
-      if(activeIndex>-1){ dragging=true; last=p; canvas.setPointerCapture(e.pointerId); }
-      draw();
-    });
-    canvas.addEventListener('pointermove', e=>{
-      if(!dragging||activeIndex<0) return;
-      const p = getCanvasPoint(e);
-      const dx=p.x-last.x, dy=p.y-last.y;
-      items[activeIndex].x += dx; items[activeIndex].y += dy; last=p; draw();
-    });
-    canvas.addEventListener('pointerup', e=>{ dragging=false; try{canvas.releasePointerCapture(e.pointerId)}catch{} });
-    canvas.addEventListener('dblclick', ()=>{ activeIndex=-1; draw(); });
-
-    // Keyboard helpers (desktop)
-    window.addEventListener('keydown', e=>{
-      if(activeIndex<0) return;
-      const it=items[activeIndex];
-      if(e.key==='a'||e.key==='A'){ it.rot-=0.05; draw(); }
-      if(e.key==='d'||e.key==='D'){ it.rot+=0.05; draw(); }
-      if(e.key==='w'||e.key==='W'){ it.scale=Math.min(3,(it.scale||1)+0.05); draw(); }
-      if(e.key==='s'||e.key==='S'){ it.scale=Math.max(0.3,(it.scale||1)-0.05); draw(); }
-      if(e.key==='Delete' || e.key==='Backspace'){ items.splice(activeIndex,1); activeIndex=-1; draw(); }
-    });
-
-    function getCanvasPoint(e){
-      const r=canvas.getBoundingClientRect();
-      const x = (e.clientX - r.left) * (canvas.width / r.width);
-      const y = (e.clientY - r.top) * (canvas.height / r.height);
-      return {x,y};
-    }
-
-    function hitTest(x,y){
-      for(let i=items.length-1;i>=0;i--){
-        const it=items[i];
-        const dx = x - it.x, dy = y - it.y;
-        if(Math.hypot(dx,dy) < 160) return i;
-      }
-      return -1;
-    }
-
-    // ====== Controls ======
-    const textInput = document.getElementById('textInput');
-    const textSize  = document.getElementById('textSize');
-    document.getElementById('addText').onclick = ()=> addTextItem(textInput.value, parseInt(textSize.value,10));
-
-    const stickerRow = document.getElementById('stickers');
-    EMOJIS.forEach(em=>{
-      const b=document.createElement('button'); b.className='btn sticker-btn'; b.textContent=em;
-      b.onclick=()=>addSticker(em); stickerRow.appendChild(b);
-    });
-    document.getElementById('addRandomSticker').onclick = ()=> addSticker(EMOJIS[Math.floor(Math.random()*EMOJIS.length)]);
-
-    document.getElementById('shuffleBg').onclick = ()=>{ bgIndex=(bgIndex+1)%BG_GRADIENTS.length; draw(); };
-    document.getElementById('togglePattern').onclick = ()=>{ showPattern=!showPattern; draw(); };
-    document.getElementById('centerAll').onclick = ()=>{
-      const c=centerPos(); items.forEach(it=>{ it.x=c.x; it.y=c.y; }); draw();
-    };
-    document.getElementById('clearItems').onclick = ()=>{ items.length=0; activeIndex=-1; draw(); };
-
-    document.getElementById('downloadBtn').onclick = ()=>{
-      // ensure output is exactly 1080x1920 PNG
-      const link = document.createElement('a');
-      link.download = `postcard-${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    };
-
-    // Live update current active text size if selected
-    textSize.addEventListener('input', ()=>{
-      if(activeIndex>-1 && items[activeIndex].type==='text'){
-        items[activeIndex].size = parseInt(textSize.value,10); draw();
-      }
-    });
-
-    // ====== Initial content ======
-    addTextItem('วันนี้เก่งมาก ๆ เลยนะ 🌸', 64);
-    addSticker('✨'); addSticker('🐻');
+  function addTextItem(text, size){
+    if(!text) return;
+    items.push({type:'text', text, x:centerPos().x, y:centerPos().y, scale:1, rot:0, size:size||48, alignCenter:true});
+    activeIndex = items.length-1;
     draw();
-  </script>
+  }
+  function addSticker(emoji){
+    items.push({type:'sticker', emoji, x: rand(240, canvas.width-240), y: rand(360, canvas.height-360), scale: rand(0.8,1.3), rot: rand(-0.2,0.2)});
+    activeIndex = items.length-1;
+    draw();
+  }
+
+  function drawBackground(){
+    const [c1,c2]=BG_GRADIENTS[bgIndex];
+    const grd=ctx.createLinearGradient(0,0, canvas.width, canvas.height);
+    grd.addColorStop(0,c1); grd.addColorStop(1,c2);
+    ctx.fillStyle=grd; ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(showPattern){
+      const step=120; ctx.globalAlpha=0.15; ctx.fillStyle='#ffffff';
+      for(let y=step/2;y<canvas.height;y+=step){
+        for(let x=step/2;x<canvas.width;x+=step){
+          ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fill();
+        }
+      }
+      ctx.globalAlpha=1;
+    }
+    const m=48; ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.lineWidth=12; ctx.strokeRect(m,m, canvas.width-2*m, canvas.height-2*m);
+  }
+
+  function drawItems(){
+    items.forEach((it,i)=>{
+      ctx.save();
+      ctx.translate(it.x,it.y);
+      ctx.rotate(it.rot||0);
+      ctx.scale(it.scale||1,it.scale||1);
+      if(it.type==='text'){
+        ctx.font = `600 ${it.size||48}px system-ui, "Noto Color Emoji", emoji`;
+        ctx.fillStyle = '#1f2937';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        wrapText(it.text, 800, it.size*1.2);
+      }else{
+        ctx.font = `${160}px "Noto Color Emoji", system-ui`;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(it.emoji,0,0);
+      }
+      ctx.restore();
+      if(i===activeIndex){
+        ctx.save();
+        ctx.strokeStyle='rgba(31,41,55,.6)'; ctx.setLineDash([12,8]); ctx.lineWidth=4;
+        ctx.strokeRect(it.x-140,it.y-140,280,280);
+        ctx.restore();
+      }
+    })
+  }
+
+  function wrapText(text,maxWidth,lineHeight){
+    const words = text.split(' '); let line='', y=0; const lines=[];
+    for(let w of words){
+      const test=line? line+' '+w:w;
+      if(ctx.measureText(test).width>maxWidth){ lines.push(line); line=w; } else line=test;
+    }
+    if(line) lines.push(line);
+    const totalH=(lines.length-1)*lineHeight;
+    let startY=-totalH/2;
+    for(const ln of lines){ ctx.fillText(ln,0,startY); startY+=lineHeight; }
+  }
+
+  function draw(){ drawBackground(); drawItems(); }
+
+  // Interaction
+  let dragging=false; let last={x:0,y:0};
+  canvas.addEventListener('pointerdown', e=>{
+    const p=getCanvasPoint(e);
+    activeIndex=hitTest(p.x,p.y);
+    if(activeIndex>-1){ dragging=true; last=p; canvas.setPointerCapture(e.pointerId); }
+    draw();
+  });
+  canvas.addEventListener('pointermove', e=>{
+    if(!dragging||activeIndex<0) return;
+    const p=getCanvasPoint(e);
+    items[activeIndex].x+=p.x-last.x; items[activeIndex].y+=p.y-last.y; last=p; draw();
+  });
+  canvas.addEventListener('pointerup', e=>{ dragging=false; try{canvas.releasePointerCapture(e.pointerId)}catch{} });
+  canvas.addEventListener('dblclick', ()=>{ activeIndex=-1; draw(); });
+
+  window.addEventListener('keydown', e=>{
+    if(activeIndex<0) return; const it=items[activeIndex];
+    if(e.key==='a'||e.key==='A'){ it.rot-=0.05; draw(); }
+    if(e.key==='d'||e.key==='D'){ it.rot+=0.05; draw(); }
+    if(e.key==='w'||e.key==='W'){ it.scale=Math.min(3,(it.scale||1)+0.05); draw(); }
+    if(e.key==='s'||e.key==='S'){ it.scale=Math.max(0.3,(it.scale||1)-0.05); draw(); }
+    if(e.key==='Delete'||e.key==='Backspace'){ items.splice(activeIndex,1); activeIndex=-1; draw(); }
+  });
+
+  function getCanvasPoint(e){ const r=canvas.getBoundingClientRect(); return {x:(e.clientX-r.left)*(canvas.width/r.width), y:(e.clientY-r.top)*(canvas.height/r.height)} }
+  function hitTest(x,y){ for(let i=items.length-1;i>=0;i--){ const it=items[i]; if(Math.hypot(x-it.x,y-it.y)<160) return i; } return -1; }
+
+  // Controls
+  const textInput=document.getElementById('textInput');
+  const textSize=document.getElementById('textSize');
+  document.getElementById('addText').onclick=()=>addTextItem(textInput.value,parseInt(textSize.value,10));
+
+  const stickerRow=document.getElementById('stickers');
+  EMOJIS.forEach(em=>{ const b=document.createElement('button'); b.className='btn sticker-btn'; b.textContent=em; b.onclick=()=>addSticker(em); stickerRow.appendChild(b); });
+  document.getElementById('addRandomSticker').onclick=()=>addSticker(EMOJIS[Math.floor(Math.random()*EMOJIS.length)]);
+  document.getElementById('shuffleBg').onclick=()=>{ bgIndex=(bgIndex+1)%BG_GRADIENTS.length; draw(); };
+  document.getElementById('togglePattern').onclick=()=>{ showPattern=!showPattern; draw(); };
+  document.getElementById('centerAll').onclick=()=>{ const c=centerPos(); items.forEach(it=>{ it.x=c.x; it.y=c.y; }); draw(); };
+  document.getElementById('clearItems').onclick=()=>{ items.length=0; activeIndex=-1; draw(); };
+  document.getElementById('downloadBtn').onclick=()=>{
+    const link=document.createElement('a'); link.download=`postcard-${Date.now()}.png`;
+    link.href=canvas.toDataURL('image/png'); link.click();
+  };
+  textSize.addEventListener('input',()=>{ if(activeIndex>-1 && items[activeIndex].type==='text'){ items[activeIndex].size=parseInt(textSize.value,10); draw(); } });
+
+  // Initial content
+  addTextItem('วันนี้เก่งมาก ๆ เลยนะ 🌸',64);
+  addSticker('✨'); addSticker('🐻');
+  draw();
+</script>
 </body>
 </html>
