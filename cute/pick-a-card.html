@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pick a Card 🔮</title>
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #ffe6f0, #e6f7ff);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 10px;
+    min-height: 100vh;
+}
+h1 {
+    color: #444;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px #fff;
+}
+.cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+.card {
+    width: 120px;
+    height: 180px;
+    perspective: 1200px;
+    cursor: pointer;
+}
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    border-radius: 15px;
+}
+.card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 40px;
+}
+.card-front {
+    background: linear-gradient(135deg, #ff9ad1, #ffd1d1);
+    color: #fff;
+    border: 2px solid #fff;
+    box-shadow: inset 0 -5px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+.card-front:hover {
+    transform: scale(1.1) rotate(-2deg);
+}
+.card-back {
+    background: #fff;
+    transform: rotateY(180deg);
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+    padding: 10px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
+    line-height: 1.3;
+}
+@media (max-width: 500px) {
+    .card { width: 90px; height: 135px; }
+    .card-front, .card-back { font-size: 30px; }
+    .card-back { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<h1 id="title">Pick a Card 🔮</h1>
+<div class="cards" id="cards"></div>
+
+<script>
+let predictions = {};
+let selected = false;
+
+fetch('predictions.json')
+    .then(res => res.json())
+    .then(data => {
+        predictions = data;
+        document.getElementById("title").innerText = data.title;
+        const cardsContainer = document.getElementById("cards");
+        data.cards.forEach((pred, i) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-front">🃏</div>
+                    <div class="card-back">${pred}</div>
+                </div>`;
+            card.addEventListener('click', () => {
+                if(selected) return; // ป้องกันคลิกซ้ำ
+                selected = true;
+                card.classList.add('flipped');
+            });
+            cardsContainer.appendChild(card);
+        });
+    });
+</script>
+
+</body>
+</html>
