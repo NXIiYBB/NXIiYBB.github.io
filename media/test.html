@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AnatomiX Dashboard</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #e6f0fa;
+    color: #03396c;
+  }
+
+  /* Navbar */
+  nav {
+    background-color: #005b96;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  nav .menu a {
+    color: white;
+    text-decoration: none;
+    margin-right: 20px;
+    font-weight: 600;
+  }
+
+  nav .menu a:hover {
+    text-decoration: underline;
+  }
+
+  nav .logout {
+    background-color: #ff4d4d;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 100px 20px;
+    background: linear-gradient(to right, #00aaff, #0077b6);
+    color: white;
+  }
+
+  .hero h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+
+  .hero p {
+    font-size: 20px;
+    margin-bottom: 30px;
+  }
+
+  /* Info section */
+  .info-section {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 0 20px;
+  }
+
+  .info-section h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #005b96;
+  }
+
+  .info-section p {
+    font-size: 18px;
+    line-height: 1.6;
+    color: #03396c;
+  }
+
+  /* Feature Cards */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    max-width: 1000px;
+    margin: 60px auto;
+    padding: 0 20px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px 20px;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-8px);
+  }
+
+  .card h3 {
+    color: #0077b6;
+    margin-bottom: 15px;
+  }
+
+  .card p {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  /* Small Tips */
+  .tips {
+    background-color: #d0e8ff;
+    padding: 30px 20px;
+    margin: 50px auto;
+    max-width: 900px;
+    border-radius: 15px;
+  }
+
+  .tips h3 {
+    margin-bottom: 10px;
+    color: #0077b6;
+  }
+
+  .tips ul {
+    padding-left: 20px;
+  }
+
+  .tips li {
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  /* CTA Section */
+  .cta {
+    text-align: center;
+    padding: 60px 20px;
+    background: #0077b6;
+    color: white;
+  }
+
+  .cta h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+
+  /* Footer */
+  footer {
+    background-color: #005b96;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="menu">
+      <a href="#">Chat</a>
+      <a href="#">Quiz</a>
+      <a href="#">Diagram</a>
+      <a href="#">Profile</a>
+    </div>
+    <div class="logout">Logout</div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>Welcome to AnatomiX</h1>
+    <p>Explore human physiology in a fun and interactive way with our AI assistant.</p>
+  </section>
+
+  <!-- About Section -->
+  <section class="info-section">
+    <h2>About AnatomiX</h2>
+    <p>
+      AnatomiX is a web application designed to help learners understand the 7 major human body systems. 
+      You can chat with AI, take quizzes, and explore interactive diagrams. 
+      Conversations can also be saved to create quizzes from what you learn.
+    </p>
+  </section>
+
+  <!-- Feature Cards -->
+  <section class="features">
+    <div class="card">
+      <h3>💬 Chat</h3>
+      <p>Ask the AI questions about body systems and get clear explanations.</p>
+    </div>
+    <div class="card">
+      <h3>📝 Quiz</h3>
+      <p>Test your knowledge with quizzes and track your progress.</p>
+    </div>
+    <div class="card">
+      <h3>🩻 Diagram</h3>
+      <p>Learn through interactive diagrams of organs and body systems.</p>
+    </div>
+  </section>
+
+  <!-- Small Tips -->
+  <section class="tips">
+    <h3>Quick Facts</h3>
+    <ul>
+      <li>The human respiratory system exchanges oxygen and carbon dioxide at 5–6 liters per minute.</li>
+      <li>The heart beats about 100,000 times per day.</li>
+      <li>The human brain weighs around 1.3–1.4 kg and consumes about 20% of the body's energy.</li>
+    </ul>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <h2>Are you ready to dive into learning human anatomy?</h2>
+    <p>Discover, explore, and test your knowledge with AnatomiX today.</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    © 2025 AnatomiX Project | All Rights Reserved
+  </footer>
+
+</body>
+</html>

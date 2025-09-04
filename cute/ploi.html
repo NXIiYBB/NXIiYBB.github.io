@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ปล่อยความกังวล</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0f2fe; /* Light blue background */
+            color: #1a202c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        #worry-text-container {
+            font-size: 1.5rem;
+            line-height: 1.5;
+            color: #4b5563;
+            min-height: 100px;
+            transition: opacity 2s ease-in-out, transform 2s ease-in-out;
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+            margin-top: 1rem;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-100px) rotate(10deg);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-600 mb-4">
+            ปล่อยความกังวลของคุณ
+        </h1>
+        <p class="text-gray-600 mb-8">
+            เขียนความกังวลลงไป แล้วกดปุ่มเพื่อปล่อยมันไปกับสายลม
+        </p>
+
+        <div id="input-section">
+            <textarea id="worry-input" rows="4" class="w-full p-4 rounded-xl border-2 border-gray-300 focus:outline-none focus:border-blue-500 transition-colors mb-4" placeholder="เขียนความกังวลของคุณที่นี่..."></textarea>
+            <button id="release-button" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-full hover:bg-blue-700 transition-colors shadow-md transform hover:scale-105">
+                ปล่อยไป
+            </button>
+        </div>
+
+        <div id="worry-text-container" class="hidden">
+            <!-- The worry text will be displayed here -->
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const worryInput = document.getElementById('worry-input');
+            const releaseButton = document.getElementById('release-button');
+            const worryTextContainer = document.getElementById('worry-text-container');
+            const inputSection = document.getElementById('input-section');
+
+            // Event listener for the "Release" button
+            releaseButton.addEventListener('click', () => {
+                const worryText = worryInput.value.trim();
+
+                // Only proceed if there is text in the input box
+                if (worryText) {
+                    // Hide the input section and display the text
+                    inputSection.classList.add('hidden');
+                    worryTextContainer.textContent = worryText;
+                    worryTextContainer.classList.remove('hidden');
+
+                    // Start the fade-out animation after a short delay
+                    setTimeout(() => {
+                        worryTextContainer.classList.add('fade-out');
+                    }, 1000); // Wait 1 second before fading
+
+                    // After the animation finishes, reset the app
+                    setTimeout(() => {
+                        worryTextContainer.classList.add('hidden');
+                        worryTextContainer.classList.remove('fade-out');
+                        worryTextContainer.style.transform = 'translateY(0) rotate(0deg)'; // Reset transform for next animation
+                        worryTextContainer.style.opacity = '1'; // Reset opacity for next animation
+                        inputSection.classList.remove('hidden');
+                        worryInput.value = ''; // Clear the input field
+                    }, 3000); // 1s delay + 2s animation duration
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindness Wall | กำแพงแห่งความเมตตา</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4; /* Very light green background */
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .message-card {
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .message-text {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        .card-bg-1 { background-color: #f7fee7; border-top: 4px solid #84cc16; }
+        .card-bg-2 { background-color: #ecfdf5; border-top: 4px solid #22c55e; }
+        .card-bg-3 { background-color: #f0f9ff; border-top: 4px solid #3b82f6; }
+        .card-bg-4 { background-color: #fffbeb; border-top: 4px solid #f97316; }
+
+        /* Style for liked button to indicate it's been clicked */
+        .like-btn.liked {
+            color: #ef4444; /* A shade of red */
+            cursor: not-allowed;
+        }
+        .like-btn:disabled {
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <!-- Header Section -->
+    <header class="text-center mb-12">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-green-700">กำแพงแห่งความเมตตา</h1>
+        <p class="mt-2 text-lg text-gray-600">แบ่งปันกำลังใจและเรื่องราวดีๆ ให้กัน</p>
+    </header>
+
+    <main class="container mx-auto">
+
+        <!-- Post Message Section -->
+        <section class="mb-12 bg-white p-6 rounded-3xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4 text-center text-green-600">โพสต์ข้อความให้กำลังใจ</h2>
+            <form id="kindness-form" class="flex flex-col gap-4">
+                <textarea id="message-input" rows="4" class="w-full p-4 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-green-500 transition-colors" placeholder="เขียนข้อความดีๆ หรือเรื่องราวที่ทำให้คุณยิ้มได้..."></textarea>
+                <button type="submit" class="bg-green-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-green-700 transition-colors shadow-md transform hover:scale-105">
+                    โพสต์เลย
+                </button>
+            </form>
+        </section>
+
+        <!-- Random Message Section -->
+        <section class="mb-12 bg-white p-6 rounded-3xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4 text-center text-green-600">รับกำลังใจแบบสุ่ม</h2>
+            <div id="random-message-display" class="bg-lime-100 p-6 rounded-xl text-center text-lg font-medium text-gray-700 hidden">
+                <!-- Random message will be displayed here -->
+            </div>
+            <div class="flex justify-center mt-4">
+                <button id="random-message-btn" class="bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-emerald-700 transition-colors shadow-md transform hover:scale-105">
+                    สุ่มข้อความ
+                </button>
+            </div>
+        </section>
+
+        <!-- Kindness Wall Section -->
+        <section>
+            <h2 class="text-2xl font-bold mb-6 text-center text-green-600">ข้อความจากใจ</h2>
+            <div id="kindness-wall-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Message cards will be generated here by JavaScript -->
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Wait for the entire DOM to be loaded before running the script
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- DOM Elements ---
+            const kindnessForm = document.getElementById('kindness-form');
+            const messageInput = document.getElementById('message-input');
+            const kindnessWallContainer = document.getElementById('kindness-wall-container');
+            const randomMessageBtn = document.getElementById('random-message-btn');
+            const randomMessageDisplay = document.getElementById('random-message-display');
+
+            // --- Data & State Management ---
+            // Key for localStorage
+            const messagesStorageKey = 'kindnessMessages';
+            const likedMessagesStorageKey = 'likedMessagesKindnessWall';
+
+            // Load messages from localStorage, or use default messages if none exist
+            let messages = JSON.parse(localStorage.getItem(messagesStorageKey)) || [
+                { id: 1, text: "คุณเก่งมากแล้วในวันนี้!", likes: 5 },
+                { id: 2, text: "อย่าลืมยิ้มให้ตัวเองในกระจกนะ", likes: 3 },
+                { id: 3, text: "การพักผ่อนก็สำคัญไม่แพ้การทำงานนะ", likes: 8 },
+                { id: 4, text: "วันนี้เป็นวันที่ดี ขอให้เป็นวันที่ยอดเยี่ยมของคุณ", likes: 2 },
+                { id: 5, text: "ทุกก้าวที่คุณเดินไปข้างหน้าคือความสำเร็จแล้ว", likes: 6 },
+                { id: 6, text: "ความสุขเล็กๆ น้อยๆ ก็สร้างวันดีๆ ได้นะ", likes: 4 },
+            ];
+
+            // Load liked message IDs from localStorage
+            let likedMessages = JSON.parse(localStorage.getItem(likedMessagesStorageKey)) || [];
+            
+            // Function to save messages and liked messages to localStorage
+            const saveMessages = () => {
+                localStorage.setItem(messagesStorageKey, JSON.stringify(messages));
+                localStorage.setItem(likedMessagesStorageKey, JSON.stringify(likedMessages));
+            };
+
+            // --- Core Functions ---
+
+            // Renders all messages to the wall
+            const renderMessages = () => {
+                // Clear the container to prevent duplicates
+                kindnessWallContainer.innerHTML = '';
+
+                // Iterate over each message and create a card
+                messages.forEach((message, index) => {
+                    const card = document.createElement('div');
+                    const cardBgClass = `card-bg-${(index % 4) + 1}`;
+                    card.className = `message-card ${cardBgClass} p-6 rounded-xl shadow-md flex flex-col justify-between transition-transform transform hover:scale-105`;
+                    card.innerHTML = `
+                        <p class="message-text text-gray-800 text-lg mb-4 leading-relaxed">${message.text}</p>
+                        <div class="flex justify-between items-center text-sm text-gray-500">
+                            <span>นิรนาม</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="likes-count text-gray-800 font-semibold">${message.likes}</span>
+                                <button class="like-btn text-gray-400 hover:text-red-500 transition-colors focus:outline-none">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 017.5 3c1.74 0 3.41.81 4.5 2.09A5.5 5.5 0 0116.5 3c3.03 0 5.5 2.47 5.5 5.5 0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    // Check if the message has already been liked by the user
+                    const likeBtn = card.querySelector('.like-btn');
+                    if (likedMessages.includes(message.id)) {
+                        likeBtn.classList.add('liked');
+                        likeBtn.disabled = true;
+                    }
+
+                    // Add click event listener to the like button
+                    likeBtn.addEventListener('click', () => {
+                        // Check if the message has already been liked. If so, do nothing.
+                        if (likedMessages.includes(message.id)) {
+                            return;
+                        }
+
+                        // Find the message by ID and increment likes
+                        const likedMessage = messages.find(m => m.id === message.id);
+                        if (likedMessage) {
+                            likedMessage.likes++;
+                            likedMessages.push(message.id); // Add the message ID to the liked list
+                            
+                            // Update the display for this card
+                            card.querySelector('.likes-count').textContent = likedMessage.likes;
+                            likeBtn.classList.add('liked');
+                            likeBtn.disabled = true;
+
+                            // Save the new state to localStorage
+                            saveMessages();
+                        }
+                    });
+
+                    kindnessWallContainer.appendChild(card);
+                });
+            };
+
+            // --- Event Listeners ---
+
+            // Handle new message submission
+            kindnessForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const messageText = messageInput.value.trim();
+
+                if (messageText) {
+                    const newMessage = {
+                        id: messages.length > 0 ? messages[messages.length - 1].id + 1 : 1,
+                        text: messageText,
+                        likes: 0
+                    };
+                    
+                    messages.push(newMessage);
+                    saveMessages();
+                    renderMessages(); // Re-render the wall with the new message
+                    messageInput.value = ''; // Clear the input field
+                }
+            });
+
+            // Handle random message button click
+            randomMessageBtn.addEventListener('click', () => {
+                if (messages.length === 0) {
+                    randomMessageDisplay.textContent = 'ยังไม่มีข้อความ ลองโพสต์ข้อความแรกดูสิ!';
+                    randomMessageDisplay.classList.remove('hidden');
+                    return;
+                }
+
+                // Get a random message from the array
+                const randomIndex = Math.floor(Math.random() * messages.length);
+                const randomMessage = messages[randomIndex];
+
+                // Display the random message
+                randomMessageDisplay.textContent = randomMessage.text;
+                randomMessageDisplay.classList.remove('hidden');
+            });
+
+            // Initial rendering of the messages
+            renderMessages();
+        });
+    </script>
+</body>
+</html>

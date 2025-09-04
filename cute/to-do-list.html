@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการสิ่งที่ต้องทำ</title>
+    <!-- Use Tailwind CSS for modern and responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Heroicons for the delete icon -->
+    <script src="https://cdn.jsdelivr.net/npm/heroicons-2.0.18@2.0.18/dist/heroicons.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        .container-bg {
+            background-color: #ffffff;
+        }
+        .status-btn.todo {
+            background-color: #ef4444; /* Red */
+        }
+        .status-btn.doing {
+            background-color: #f97316; /* Orange */
+        }
+        .status-btn.done {
+            background-color: #22c55e; /* Green */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-lg container-bg border border-gray-200">
+        <!-- Website Header -->
+        <h1 class="text-4xl font-bold text-center mb-2 text-gray-800">!!To Do List!!</h1>
+        <p class="text-center text-sm mb-6 text-gray-600">ฟ้าวเฮ็ดฟ้าวแล้ว</p>
+
+        <!-- Display remaining tasks count -->
+        <div class="text-center text-gray-700 mb-4">
+            <span id="task-count" class="font-bold text-2xl text-blue-600">0</span> งานที่ต้องทำ
+        </div>
+
+        <!-- Form for adding a new task -->
+        <form id="task-form" class="flex flex-col gap-3 mb-6 bg-gray-100 p-4 rounded-xl shadow-inner">
+            <input type="text" id="task-input" placeholder="เพิ่มงานใหม่..." class="p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-lg">
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <select id="task-category" class="w-full sm:w-1/2 p-4 rounded-xl border border-gray-300 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    <option value="ทั่วไป">ทั่วไป</option>
+                    <option value="การบ้าน">การบ้าน</option>
+                    <option value="โปรเจกต์">โปรเจกต์</option>
+                    <option value="กิจกรรม">กิจกรรม</option>
+                </select>
+                <input type="date" id="task-due-date" class="w-full sm:w-1/2 p-4 rounded-xl border border-gray-300 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            </div>
+
+            <button type="submit" class="bg-blue-600 text-white p-4 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg">เพิ่มงาน</button>
+        </form>
+
+        <!-- To-Do list (now sorted by due date) -->
+        <div id="calendar-view" class="space-y-6">
+            <!-- Calendar and task lists will be dynamically generated here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get necessary HTML elements
+            const taskForm = document.getElementById('task-form');
+            const taskInput = document.getElementById('task-input');
+            const taskCategory = document.getElementById('task-category');
+            const taskDueDate = document.getElementById('task-due-date');
+            const calendarView = document.getElementById('calendar-view');
+            const taskCountSpan = document.getElementById('task-count');
+
+            // Array to store all tasks
+            let tasks = [];
+
+            // Function to update the count of unfinished tasks
+            const updateTaskCount = () => {
+                const pendingTasks = tasks.filter(task => task.status === 'todo').length;
+                taskCountSpan.textContent = pendingTasks;
+            };
+
+            // Function to render the tasks in a calendar view
+            const renderTasks = () => {
+                calendarView.innerHTML = '';
+                
+                // Group tasks by due date
+                const groupedTasks = tasks.reduce((acc, task) => {
+                    const date = task.dueDate || 'No Date';
+                    if (!acc[date]) {
+                        acc[date] = [];
+                    }
+                    acc[date].push(task);
+                    return acc;
+                }, {});
+
+                // Sort dates
+                const sortedDates = Object.keys(groupedTasks).sort((a, b) => {
+                    if (a === 'No Date') return 1;
+                    if (b === 'No Date') return -1;
+                    return new Date(a) - new Date(b);
+                });
+
+                sortedDates.forEach(date => {
+                    const dateHeader = document.createElement('h2');
+                    dateHeader.className = "text-xl font-bold mt-6 mb-2 text-blue-700";
+                    dateHeader.textContent = date === 'No Date' ? 'ไม่มีกำหนดส่ง' : new Date(date).toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    calendarView.appendChild(dateHeader);
+
+                    const ul = document.createElement('ul');
+                    ul.className = "space-y-4";
+
+                    groupedTasks[date].forEach(task => {
+                        const li = document.createElement('li');
+                        li.className = "flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-100";
+                        li.setAttribute('data-id', task.id);
+                        li.setAttribute('data-status', task.status);
+                        if (task.status === 'done') {
+                            li.classList.add('completed');
+                        }
+
+                        // Task details container
+                        const detailsDiv = document.createElement('div');
+                        detailsDiv.className = "flex-grow flex flex-col";
+
+                        const span = document.createElement('span');
+                        span.className = `text-gray-800 text-base sm:text-lg break-words w-full ${task.status === 'done' ? 'completed' : ''}`;
+                        span.textContent = task.text;
+
+                        const metaDiv = document.createElement('div');
+                        metaDiv.className = "text-sm text-gray-500 mt-1";
+                        metaDiv.innerHTML = `ประเภท: <span class="font-medium">${task.category}</span>`;
+
+                        detailsDiv.appendChild(span);
+                        detailsDiv.appendChild(metaDiv);
+
+                        // Buttons container for status and deletion
+                        const buttonsDiv = document.createElement('div');
+                        buttonsDiv.className = "flex items-center space-x-2 mt-3 sm:mt-0 ml-0 sm:ml-4";
+
+                        const statusBtn = document.createElement('button');
+                        statusBtn.className = `status-btn px-3 py-1 rounded-full text-white text-sm font-semibold transition-colors status-btn-${task.status}`;
+                        statusBtn.textContent = task.status === 'todo' ? 'ยังไม่เริ่ม' : (task.status === 'doing' ? 'กำลังทำ' : 'ทำเสร็จแล้ว');
+                        statusBtn.classList.add(task.status);
+                        
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = "delete-btn text-red-500 hover:text-red-600 transition-colors text-xl font-bold";
+                        deleteBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.354a4.5 4.5 0 00-.814-2.822a4.5 4.5 0 00-3.8-.813a4.5 4.5 0 00-3.8.813a4.5 4.5 0 00-.814 2.822m10.74 0l.228 1.139l-.485-.245M12 21a9 9 0 100-18a9 9 0 000 18z" />
+                            </svg>
+                        `;
+
+                        buttonsDiv.appendChild(statusBtn);
+                        buttonsDiv.appendChild(deleteBtn);
+
+                        li.appendChild(detailsDiv);
+                        li.appendChild(buttonsDiv);
+                        ul.appendChild(li);
+                    });
+                    calendarView.appendChild(ul);
+                });
+            };
+
+            // Add event listener for form submission
+            taskForm.addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent page refresh
+
+                const taskText = taskInput.value.trim();
+                const category = taskCategory.value;
+                const dueDate = taskDueDate.value;
+
+                if (taskText !== '') {
+                    const newTask = {
+                        id: Date.now(),
+                        text: taskText,
+                        category: category,
+                        dueDate: dueDate,
+                        status: 'todo'
+                    };
+                    tasks.push(newTask);
+                    taskInput.value = ''; // Clear input fields
+                    taskDueDate.value = '';
+                    updateTaskCount();
+                    renderTasks();
+                }
+            });
+
+            // Add event listener for status and delete buttons
+            calendarView.addEventListener('click', (event) => {
+                const target = event.target;
+                const taskItem = target.closest('li');
+                if (!taskItem) return;
+                
+                const taskId = parseInt(taskItem.getAttribute('data-id'));
+                const taskIndex = tasks.findIndex(t => t.id === taskId);
+
+                if (target.closest('.delete-btn')) {
+                    if (taskIndex !== -1) {
+                        tasks.splice(taskIndex, 1);
+                        updateTaskCount();
+                        renderTasks();
+                    }
+                } else if (target.closest('.status-btn')) {
+                    if (taskIndex !== -1) {
+                        const currentStatus = tasks[taskIndex].status;
+                        let newStatus;
+                        
+                        if (currentStatus === 'todo') {
+                            newStatus = 'doing';
+                        } else if (currentStatus === 'doing') {
+                            newStatus = 'done';
+                        } else {
+                            newStatus = 'todo';
+                        }
+                        
+                        tasks[taskIndex].status = newStatus;
+                        updateTaskCount();
+                        renderTasks();
+                    }
+                }
+            });
+
+            // Initial render
+            renderTasks();
+        });
+    </script>
+
+</body>
+</html>
