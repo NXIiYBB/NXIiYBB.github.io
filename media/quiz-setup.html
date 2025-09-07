@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AnatomiX - Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5faff;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background-color: #1976d2;
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #1976d2;
+    }
+    .quiz-setup label {
+      display: block;
+      margin: 0.5rem 0 0.2rem;
+      font-weight: bold;
+    }
+    .quiz-setup select, .quiz-setup input {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 1rem;
+    }
+    .btn {
+      display: inline-block;
+      background: #1976d2;
+      color: white;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background: #1258a8;
+    }
+    footer {
+      margin-top: 3rem;
+      padding: 1rem;
+      text-align: center;
+      background: #e3f2fd;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧠 AnatomiX - Quiz Zone</h1>
+    <p>Test your knowledge of the human body!</p>
+  </header>
+
+  <div class="container">
+    <h2>Quiz Setup</h2>
+    <form class="quiz-setup">
+      <label for="topic">Choose Topic(s):</label>
+      <select id="topic" multiple>
+        <option>Circulatory System</option>
+        <option>Respiratory System</option>
+        <option>Digestive System</option>
+        <option>Nervous System</option>
+        <option>Musculoskeletal System</option>
+        <option>Endocrine System</option>
+        <option>Urinary System</option>
+      </select>
+
+      <label for="num-questions">Number of Questions:</label>
+      <select id="num-questions">
+        <option>10</option>
+        <option>20</option>
+        <option>30</option>
+      </select>
+
+      <label for="difficulty">Difficulty Level:</label>
+      <select id="difficulty">
+        <option>Easy</option>
+        <option>Medium</option>
+        <option>Hard</option>
+      </select>
+
+      <label for="question-type">Question Type:</label>
+      <select id="question-type">
+        <option>Multiple Choice</option>
+        <option>True/False</option>
+        <option>Mixed</option>
+      </select>
+
+      <button type="submit" class="btn">Generate Quiz</button>
+    </form>
+  </div>
+
+  <footer>
+    <p>🚀 Ready to challenge yourself? Let's start learning with AnatomiX!</p>
+  </footer>
+</body>
+</html>

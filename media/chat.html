@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AnatomiX Chat</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #e6f0fa;
+    color: #03396c;
+  }
+
+  nav {
+    background-color: #005b96;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    position: sticky;   /* or fixed */
+    top: 0;             /* stick to the very top */
+    z-index: 1000;      /* keep it above other content */
+  }
+
+  nav .menu a {
+    color: white;
+    text-decoration: none;
+    margin-right: 20px;
+    font-weight: 600;
+  }
+
+  nav .menu a:hover {
+    text-decoration: underline;
+  }
+
+  .main {
+    display: flex;
+    flex: 1;
+    max-width: 1200px;
+    margin: 2rem auto;
+    gap: 2rem;
+    padding: 0 1rem;
+  }
+  
+  .chat-container {
+    flex: 3;
+    max-width: 900px;
+    /* margin: 10px auto; */
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  }
+
+  .sidebar {
+    flex: 1;
+    background: #e3f2fd;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: fit-content;
+  }
+
+  .conversation {
+    height: 28em;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #b3d1ff;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background-color: #f0f8ff;
+  }
+
+  .message {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
+  }
+
+  .message.user {
+    background-color: #0077b6;
+    color: white;
+    margin-left: auto;
+  }
+
+  .message.ai {
+    background-color: #d0e8ff;
+    color: #03396c;
+    margin-right: auto;
+  }
+
+  .timestamp {
+    font-size: 12px;
+    color: #555;
+    margin-top: 2px;
+  }
+
+  .input-area {
+    display: flex;
+    gap: 10px;
+  }
+
+  .input-area input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #b3d1ff;
+    font-size: 16px;
+  }
+
+  .input-area button {
+    padding: 10px 20px;
+    background-color: #0077b6;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .input-area button:hover {
+    background-color: #005b96;
+  }
+
+  .sticky-bottom {
+    position: sticky;
+    bottom: 0;
+    /* background: #e3f2fd;
+    padding: 1rem;
+    border-top: 2px solid #1976d2; */
+  }
+
+  .topic-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .topic-list li {
+    margin: 0.5rem 0;
+  }
+
+  .topic-list a {
+    display: block;
+    padding: 0.75rem 1rem;
+    background: #e3f2fd;
+    border: 1px solid #90caf9;
+    border-radius: 8px;
+    color: #1976d2;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .topic-list a:hover {
+    background: #1976d2;
+    color: white;
+    transform: translateX(5px);
+  }
+
+  .quiz-button {
+    margin: 0.5rem 0;
+    padding: 10px 20px;
+    background-color: #00aaff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .quiz-button:hover {
+    background-color: #0077b6;
+  }
+
+</style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="menu">
+      <a href="#">Home</a>
+      <a href="#">Chat</a>
+      <a href="#">Quiz</a>
+      <a href="#">Diagram</a>
+      <a href="#">Profile</a>
+    </div>
+    <div class="logout">Logout</div>
+  </nav>
+
+  <div class="main">
+    <!-- Chat Container -->
+    <div class="chat-container">
+
+      <h3>Chat with AI</h3>
+
+      <!-- Conversation Area -->
+      <div class="conversation" id="conversation">
+        <!-- Messages will appear here dynamically -->
+        <div class="message ai">
+          Hello! I am AnatomiX AI. Ask me anything about the human body.
+          <div class="timestamp">10:00 AM</div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="input-area sticky-bottom">
+        <input type="text" id="user-input" placeholder="Type your question...">
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <aside class="sidebar">
+      <div class="topic-list">
+        <h3>Topic</h3>
+        <ul>
+          <li><a href="#new">➕ Create New Topic</a></li>
+          <li><a href="#respiratory">🌬️ Respiratory System</a></li>
+          <li><a href="#circulatory">❤️ Circulatory System</a></li>
+        </ul>
+      </div>
+
+      <!-- Create Quiz Button -->
+      <button class="quiz-button">Create Quiz from Conversation</button>
+    </aside>
+
+  </div>
+
+<script>
+  const sendBtn = document.getElementById('send-btn');
+  const userInput = document.getElementById('user-input');
+  const conversation = document.getElementById('conversation');
+
+  sendBtn.addEventListener('click', () => {
+    const text = userInput.value.trim();
+    if(!text) return;
+
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'message user';
+    userMsg.innerHTML = `${text}<div class="timestamp">${new Date().toLocaleTimeString()}</div>`;
+    conversation.appendChild(userMsg);
+
+    userInput.value = '';
+
+    // Simulate AI response
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'message ai';
+    aiMsg.innerHTML = `This is a simulated AI answer for: "${text}"<div class="timestamp">${new Date().toLocaleTimeString()}</div>`;
+    conversation.appendChild(aiMsg);
+
+    // Scroll to bottom
+    conversation.scrollTop = conversation.scrollHeight;
+  });
+</script>
+
+</body>
+</html>
