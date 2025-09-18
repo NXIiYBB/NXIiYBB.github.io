@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ตรวจสอบการเข้าร่วมกิจกรรม — ระบบสาธิต</title>
+  <link rel="stylesheet" href="style/style.css">
+</head>
+<body>
+  <main class="container" role="main">
+    <header>
+      <div><img src="media/logo-ensu.png" alt="logo-ensu" width="75px"></div>
+      <div>
+        <h1>ตรวจสอบการเข้าร่วมกิจกรรม</h1>
+      </div>
+    </header>
+
+    <section class="card" aria-labelledby="formTitle">
+      <h2 id="formTitle" style="font-size:14px;margin:0 0 10px 0">ค้นหาด้วยรหัส 4 ตัวท้าย</h2>
+
+      <form id="searchForm" class="controls" onsubmit="return false;">
+        <label for="studentSuffix" class="sr-only" style="display:none">รหัส 4 ตัวท้าย</label>
+        <input id="studentSuffix" name="studentSuffix" type="text" inputmode="numeric" pattern="\d{3}-\d" placeholder="ตัวอย่าง: 000-0" aria-describedby="hint" required />
+        <button id="btnSearch" class="btn">ค้นหา</button>
+      </form>
+      <div id="message" style="margin-top:10px;color:#7b0f0f;font-size:13px"></div>
+
+      <div class="results" id="results" aria-live="polite" style="display:none">
+        <div class="section">
+          <h3>กิจกรรมที่เข้าร่วม (<span id="attCount">0</span>)</h3>
+          <ul id="attendedList" class="activities"></ul>
+        </div>
+        <div class="section">
+          <h3>กิจกรรมที่ยังไม่ได้เข้าร่วม (<span id="missCount">0</span>)</h3>
+          <ul id="missedList" class="activities"></ul>
+        </div>
+      </div>
+
+      <div class="results" id="noInfo" style="display: none;">
+        <div class="section">ไม่พบข้อมูล</div>
+      </div>
+
+      <footer>
+        หากมีข้อสงสัยหรือต้องการข้อมูลเพิ่มเติม สามารถติดต่อได้ที่<br>
+        Facebook: <a href="https://www.facebook.com/share/1CKKtViyG6/?mibextid=wwXIfr" target="_blank">สโมสรนักศึกษาคณะวิศวกรรมศาสตร์ มหาวิทยาลัยขอนแก่น</a><br>
+        Instagram: <a href="https://www.instagram.com/ensu.kku?igsh=NW85c3JscW5ibXQx" target="_blank">@ensu.kku</a>
+      </footer>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
