@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ตรวจสอบการเข้าร่วมกิจกรรม — ระบบสาธิต</title>
+  <title>ตรวจสอบการเข้าร่วมกิจกรรม</title>
   <link rel="stylesheet" href="style/style.css">
 </head>
 <body>
@@ -39,6 +39,15 @@
       <div class="results" id="noInfo" style="display: none;">
         <div class="section">ไม่พบข้อมูล</div>
       </div>
+
+      <div class="results" id="loadingSpinner" style="display:none; align-items:center; gap:8px; margin-bottom:10px;">
+        <div class="spinner" style="width:16px; height:16px; border:3px solid #7b0f0f; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+        <span>กำลังโหลดข้อมูลกิจกรรม...</span>
+      </div>
+
+      <style>
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+      </style>
 
       <footer>
         หากมีข้อสงสัยหรือต้องการข้อมูลเพิ่มเติม สามารถติดต่อได้ที่<br>

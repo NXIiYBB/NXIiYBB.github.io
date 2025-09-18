@@ -67,9 +67,7 @@ function renderResults(suffix, activities, attendanceMap){
     } else {
     attendedActivities.forEach(a => {
         const li = document.createElement('li'); li.className='activity';
-        li.innerHTML = `<strong>${a}</strong>`;
-        const pill = document.createElement('span'); pill.className='pill attended'; pill.textContent='เข้าร่วม';
-        li.insertBefore(pill, li.firstChild);
+        li.innerHTML = `✅<strong>${a}</strong>`;
         attendedList.appendChild(li);
     })
     }
@@ -84,9 +82,7 @@ function renderResults(suffix, activities, attendanceMap){
         } else {
         missedActivities.forEach(a => {
             const li = document.createElement('li'); li.className='activity';
-            li.innerHTML = `<strong>${a}</strong>`;
-            const pill = document.createElement('span'); pill.className='pill missed'; pill.textContent='ยังไม่เข้าร่วม';
-            li.insertBefore(pill, li.firstChild);
+            li.innerHTML = `❌<strong>${a}</strong>`;
             missedList.appendChild(li);
         })
         }
@@ -106,8 +102,11 @@ document.getElementById('btnSearch').addEventListener('click', ()=>{
     results.style.display='none';
     return;
     }
+    const loadingMessage = document.getElementById('loadingSpinner');
+    loadingMessage.style.display = 'flex';
     loadAttendanceData().then(({activityHeaders, attendanceMap}) => {
         renderResults(v, activityHeaders, attendanceMap);
+        loadingMessage.style.display = 'none';
     });
     showMessage('แสดงผลสำหรับรหัส: ' + v, false);
 });
