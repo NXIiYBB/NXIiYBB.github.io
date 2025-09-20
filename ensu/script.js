@@ -7,6 +7,7 @@ const missedList = document.getElementById('missedList');
 const noInfo = document.getElementById('noInfo')
 const attCount = document.getElementById('attCount');
 const missCount = document.getElementById('missCount');
+const fullnameID = document.getElementById('fullname');
 
 function normalize(v){return v.trim();}
 
@@ -38,10 +39,15 @@ async function loadAttendanceData() {
   .map(obj => obj.a);
 
   const attendanceMap = {};
+  const fullnameMap = {};
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    const suffix = row[1].trim(); // รหัส 4 ตัวท้าย
+    const suffix = row[1].trim();
     attendanceMap[suffix] = [];
+    const fullname = row[2].trim();
+
+    fullnameMap[suffix] = fullname;
+
     for (let j = 4; j < row.length; j++) {
       if (row[j].trim() === "1") { // เข้าร่วม
         attendanceMap[suffix].push(activityHeaders[j - 4]);
@@ -49,10 +55,10 @@ async function loadAttendanceData() {
     }
   }
 
-  return { activityHeaders, attendanceMap };
+  return { fullnameMap, activityHeaders, attendanceMap };
 }
 
-function renderResults(suffix, activities, attendanceMap){
+function renderResults(suffix, fullname, activities, attendanceMap){
     const attendedIds = attendanceMap[suffix] || [];
     const attendedSet = new Set(attendedIds);
 
@@ -91,6 +97,8 @@ function renderResults(suffix, activities, attendanceMap){
         missCount.textContent = missedActivities.length;
         results.style.display = 'grid';
         noInfo.style.display = 'none';
+        fullnameID.textContent = fullname[suffix];
+        fullnameID.style.display = 'flex';
     }
 }
 
@@ -104,8 +112,8 @@ document.getElementById('btnSearch').addEventListener('click', ()=>{
     }
     const loadingMessage = document.getElementById('loadingSpinner');
     loadingMessage.style.display = 'flex';
-    loadAttendanceData().then(({activityHeaders, attendanceMap}) => {
-        renderResults(v, activityHeaders, attendanceMap);
+    loadAttendanceData().then(({fullnameMap, activityHeaders, attendanceMap}) => {
+        renderResults(v, fullnameMap, activityHeaders, attendanceMap);
         loadingMessage.style.display = 'none';
     });
     showMessage('แสดงผลสำหรับรหัส: ' + v, false);
