@@ -1,29 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 
 <head>
     <meta charset="UTF-8">
-    <title>Material Control</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Material System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="header">MATERIAL CONTROL SYSTEM</div>
+    <header class="header">
+        Material Control System
+    </header>
 
-    <div class="controls">
-        <input id="search" placeholder="ค้นหา..." oninput="load()">
-        <button class="add" onclick="addItem()">+ เพิ่มอุปกรณ์</button>
-        <button class="logs" onclick="showLogs()">ดูประวัติ</button>
+    <section class="controls">
+        <input id="search" placeholder="ค้นหาอุปกรณ์..." oninput="load()">
+        <button class="add" onclick="addItem()">+ เพิ่ม</button>
+        <button class="logs" onclick="showLogs()">ประวัติ</button>
+    </section>
+
+    <section id="summary" class="summary"></section>
+    <section id="list" class="grid"></section>
+    <section id="logs" class="logsPanel"></section>
+
+
+    <!-- POPUP MODAL -->
+    <div id="modal" class="modal">
+        <div class="modal-card">
+
+            <h3>ยืมอุปกรณ์</h3>
+
+            <input id="borrowName" placeholder="ชื่อเล่น">
+            <input id="borrowDept" placeholder="ฝ่าย">
+
+            <div class="modal-buttons">
+                <button onclick="confirmBorrow()">ยืนยัน</button>
+                <button class="cancel" onclick="closeModal()">ยกเลิก</button>
+            </div>
+
+        </div>
     </div>
-
-    <div id="summary" style="padding:15px"></div>
-    <div id="list" class="grid"></div>
-    <div id="logs" style="padding:15px"></div>
 
     <script src="config.js"></script>
     <script src="app.js"></script>
-
 </body>
 
 </html>

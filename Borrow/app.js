@@ -1,3 +1,5 @@
+let selectedID = null;
+
 async function load() {
     const res = await fetch(API_URL);
     const data = await res.json();
@@ -14,12 +16,13 @@ async function load() {
 
         html += `
    <div class="card">
-   <b>${r[1]}</b><br>
-   <span class="${r[2] == "ว่าง" ? "free" : "busy"}">${r[2]}</span><br>
+   <div class="item">${r[1]}</div>
+   <div class="${r[2] == "ว่าง" ? "free" : "busy"}">${r[2]}</div>
+
    ${r[2] == "ว่าง"
-                ? `<button onclick="borrow(${r[0]})">ยืม</button>`
+                ? `<button class="borrow" onclick="openModal(${r[0]})">ยืม</button>`
                 : `ผู้ยืม: ${r[3]} (${r[4]})
-       <br><button onclick="update(${r[0]} ,'ว่าง','','')">คืน</button>`
+       <br><button class="return" onclick="update(${r[0]} ,'ว่าง','','')">คืน</button>`
             }
    </div>`;
     }
@@ -27,8 +30,27 @@ async function load() {
     document.getElementById("list").innerHTML = html;
 
     document.getElementById("summary").innerHTML =
-        `<b>ของที่ยังไม่คืน:</b><br>` +
+        "<b>ของที่ยังไม่คืน:</b><br>" +
         borrowed.map(x => `${x[1]} — ${x[3]}`).join("<br>");
+}
+
+function openModal(id) {
+    selectedID = id;
+    document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+function confirmBorrow() {
+    const name = document.getElementById("borrowName").value;
+    const dept = document.getElementById("borrowDept").value;
+
+    if (!name || !dept) return alert("กรอกข้อมูลให้ครบ");
+
+    update(selectedID, "ถูกยืม", name, dept);
+    closeModal();
 }
 
 function addItem() {
@@ -39,13 +61,6 @@ function addItem() {
         method: "POST",
         body: JSON.stringify({ action: "add", item: name })
     }).then(load);
-}
-
-function borrow(id) {
-    const name = prompt("ชื่อเล่น");
-    const dept = prompt("ฝ่าย");
-    if (!name || !dept) return;
-    update(id, "ถูกยืม", name, dept);
 }
 
 function update(id, status, name, dept) {
