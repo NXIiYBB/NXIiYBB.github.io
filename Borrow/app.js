@@ -1,5 +1,11 @@
 let selectedID = null;
 
+function formatTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString("th-TH") + " " +
+        d.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+}
+
 async function load() {
     const res = await fetch(API_URL);
     const data = await res.json();
@@ -32,6 +38,47 @@ async function load() {
     document.getElementById("summary").innerHTML =
         "<b>ของที่ยังไม่คืน:</b><br>" +
         borrowed.map(x => `${x[1]} — ${x[3]}`).join("<br>");
+}
+
+function render() {
+
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+
+    const keyword = document.getElementById("search").value.toLowerCase();
+    const filter = document.getElementById("filter").value;
+
+    data.items.forEach(item => {
+
+        const name = item[0];
+        const status = item[1];
+        const borrower = item[2];
+        const dept = item[3];
+
+        if (!name.toLowerCase().includes(keyword)) return;
+
+        if (filter === "free" && status === "borrowed") return;
+        if (filter === "busy" && status === "free") return;
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+  <div class="item">${name}</div>
+  <div class="${status === "free" ? "free" : "busy"}">
+  ${status === "free"
+                ? "ว่าง"
+                : `ยืมโดย ${borrower} (${dept})`
+            }
+  </div>
+  ${status === "free"
+                ? `<button class="borrow" onclick="borrow('${name}')">ยืม</button>`
+                : `<button class="return" onclick="returnItem('${name}')">คืน</button>`
+            }
+  `;
+
+        grid.appendChild(card);
+    });
 }
 
 function openModal(id) {
@@ -109,4 +156,31 @@ function confirmAdd() {
     });
 }
 
+function openLogs() {
+
+    const box = document.getElementById("logsList");
+    box.innerHTML = "";
+
+    data.logs.reverse().forEach(log => {
+        const div = document.createElement("div");
+        div.style.padding = "6px 0";
+        div.style.borderBottom = "1px solid #eee";
+
+        div.innerHTML = `
+  <b>${log.name}</b> — ${log.action}
+  <br>
+  <small>${log.person} (${log.dept}) • ${formatTime(log.time)}</small>
+  `;
+
+        box.appendChild(div);
+    });
+
+    document.getElementById("logsModal").style.display = "flex";
+}
+
+function closeLogs() {
+    document.getElementById("logsModal").style.display = "none";
+}
+
 setTimeout(load, 200);
+document.getElementById("search").addEventListener("input", render);

@@ -14,13 +14,20 @@
         Material Control System
     </header>
 
-    <section class="controls">
-        <input id="search" placeholder="ค้นหาอุปกรณ์..." oninput="load()">
-        <button class="add" onclick="addItem()">+ เพิ่ม</button>
-        <button class="logs" onclick="showLogs()">ประวัติ</button>
-    </section>
+    <div class="controls">
 
-    <section id="summary" class="summary"></section>
+        <input id="search" placeholder="ค้นหาอุปกรณ์">
+
+        <select id="filter" onchange="render()">
+            <option value="all">ทั้งหมด</option>
+            <option value="free">ว่าง</option>
+            <option value="busy">ถูกยืม</option>
+        </select>
+
+        <button class="add" onclick="openAdd()">+ เพิ่ม</button>
+        <button class="logs" onclick="openLogs()">ประวัติ</button>
+
+    </div>
     <section id="list" class="grid"></section>
     <section id="logs" class="logsPanel"></section>
 
@@ -47,9 +54,21 @@
             <h3>เพิ่มอุปกรณ์</h3>
             <input id="newItemName" placeholder="ชื่ออุปกรณ์">
             <div class="modal-buttons">
-                <button class="add" onclick="openAdd()">+ เพิ่ม</button>
+                <button onclick="confirmAdd()">เพิ่ม</button>
                 <button class="cancel" onclick="closeAdd()">ยกเลิก</button>
             </div>
+        </div>
+    </div>
+
+    <div id="logsModal" class="modal">
+        <div class="modal-card" style="max-width:500px">
+
+            <h3>ประวัติทั้งหมด</h3>
+
+            <div id="logsList" style="max-height:300px;overflow:auto;font-size:13px"></div>
+
+            <button class="cancel" onclick="closeLogs()">ปิด</button>
+
         </div>
     </div>
 
