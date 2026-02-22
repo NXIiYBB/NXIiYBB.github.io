@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Material Control</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="header">MATERIAL CONTROL SYSTEM</div>
+
+    <div class="controls">
+        <input id="search" placeholder="ค้นหา..." oninput="load()">
+        <button class="add" onclick="addItem()">+ เพิ่มอุปกรณ์</button>
+        <button class="logs" onclick="showLogs()">ดูประวัติ</button>
+    </div>
+
+    <div id="summary" style="padding:15px"></div>
+    <div id="list" class="grid"></div>
+    <div id="logs" style="padding:15px"></div>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+
+</body>
+
+</html>
