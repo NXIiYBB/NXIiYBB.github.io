@@ -88,4 +88,25 @@ async function showLogs() {
     document.getElementById("logs").innerHTML = html;
 }
 
-load();
+function openAdd() {
+    document.getElementById("addModal").style.display = "flex";
+}
+
+function closeAdd() {
+    document.getElementById("addModal").style.display = "none";
+}
+
+function confirmAdd() {
+    const name = document.getElementById("newItemName").value;
+    if (!name) return alert("กรอกชื่อก่อน");
+
+    fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "add", item: name })
+    }).then(() => {
+        closeAdd();
+        load();
+    });
+}
+
+setTimeout(load, 200);

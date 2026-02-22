@@ -1,8 +1,12 @@
 :root {
     --main: #7a0014;
-    --bg: #f4f6f8;
+    --bg: #f1f5f9;
     --card: #fff;
-    --border: #e5e7eb;
+    --border: #e2e8f0;
+}
+
+* {
+    box-sizing: border-box
 }
 
 body {
@@ -15,28 +19,28 @@ body {
 /* header */
 .header {
     background: white;
-    padding: 18px 25px;
+    padding: 16px 20px;
     font-weight: 700;
     border-bottom: 1px solid var(--border);
 }
 
 /* controls */
 .controls {
-    padding: 15px;
+    padding: 12px;
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
-input {
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
+.controls input {
+    flex: 1;
+    min-width: 150px;
 }
 
+/* buttons */
 button {
     border: none;
-    padding: 10px 16px;
+    padding: 10px 14px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
@@ -48,39 +52,41 @@ button {
 }
 
 .logs {
-    background: #374151;
+    background: #334155;
     color: white;
 }
 
 /* summary */
 .summary {
-    margin: 15px;
+    margin: 12px;
     background: white;
-    padding: 15px;
+    padding: 14px;
     border-radius: 12px;
     border: 1px solid var(--border);
+    font-size: 14px;
 }
 
 /* grid */
 .grid {
-    padding: 15px;
+    padding: 12px;
     display: grid;
-    gap: 15px;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
 /* card */
 .card {
     background: white;
     border-radius: 14px;
-    padding: 16px;
+    padding: 14px;
     border: 1px solid var(--border);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, .05);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .item {
-    font-weight: 700;
-    margin-bottom: 5px;
+    font-weight: 700
 }
 
 .free {
@@ -103,40 +109,74 @@ button {
 
 /* logs */
 .logsPanel {
-    margin: 15px;
-    padding: 15px;
+    margin: 12px;
+    padding: 14px;
     background: white;
     border-radius: 12px;
     border: 1px solid var(--border);
+    font-size: 13px;
+    max-height: 300px;
+    overflow: auto;
 }
 
 /* modal */
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, .4);
+    background: rgba(0, 0, 0, .45);
     display: none;
     align-items: center;
     justify-content: center;
+    padding: 15px;
 }
 
 .modal-card {
+    width: 100%;
+    max-width: 320px;
     background: white;
-    padding: 25px;
+    padding: 20px;
     border-radius: 16px;
-    width: 300px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
     display: flex;
     flex-direction: column;
     gap: 10px;
+    animation: pop .18s ease;
+}
+
+@keyframes pop {
+    from {
+        transform: scale(.9);
+        opacity: 0
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1
+    }
+}
+
+.modal input {
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
 }
 
 .modal-buttons {
     display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
+    gap: 10px;
+}
+
+.modal-buttons button {
+    flex: 1;
 }
 
 .cancel {
-    background: #9ca3af;
+    background: #9ca3af
+}
+
+/* mobile tweaks */
+@media(max-width:480px) {
+    .header {
+        font-size: 16px;
+        text-align: center
+    }
 }
